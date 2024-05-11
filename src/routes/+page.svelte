@@ -1,59 +1,58 @@
-<script>
-	import Counter from './Counter.svelte';
-	import welcome from '$lib/images/svelte-welcome.webp';
-	import welcome_fallback from '$lib/images/svelte-welcome.png';
+<script lang="ts">
+	import Counter from '$lib/Counter.svelte';
+	import Logo from '$lib/Logo.svelte';
+	import { browser } from '$app/environment';
+
+	let desktop: string;
+
+	if (window.electron && browser) {
+		window.electron.receive('from-main', (data: any) => {
+			desktop = `Received Message "${data}" from Electron`;
+			console.log(desktop);
+		});
+	}
+
+	const agent = window.electron ? 'Electron' : 'Browser';
 </script>
 
-<svelte:head>
-	<title>Home</title>
-	<meta name="description" content="Svelte demo app" />
-</svelte:head>
+<main>
+	<Logo />
 
-<section>
-	<h1>
-		<span class="welcome">
-			<picture>
-				<source srcset={welcome} type="image/webp" />
-				<img src={welcome_fallback} alt="Welcome" />
-			</picture>
-		</span>
+	<h1>Hello {agent}!</h1>
 
-		to your new<br />SvelteKit app
-	</h1>
+	<Counter id="0" {agent} />
 
-	<h2>
-		try editing <strong>src/routes/+page.svelte</strong>
-	</h2>
-
-	<Counter />
-</section>
+	{#if desktop}
+		<br />
+		<br />
+		{desktop}
+	{/if}
+</main>
 
 <style>
-	section {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		flex: 0.6;
+	:root {
+		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+			Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 	}
 
-	h1 {
-		width: 100%;
+	:global(body) {
+		margin: 0;
+		padding: 0;
 	}
 
-	.welcome {
-		display: block;
-		position: relative;
-		width: 100%;
-		height: 0;
-		padding: 0 0 calc(100% * 495 / 2048) 0;
+	main {
+		padding: 2em 1em 1em 1em;
+		text-align: center;
+		animation: fade 1s;
+		margin: 0 auto;
 	}
 
-	.welcome img {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		top: 0;
-		display: block;
+	@keyframes fade {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
 	}
 </style>
