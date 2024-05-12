@@ -1,0 +1,34 @@
+:root {
+    color-scheme: light;
+
+    --color-text: #000;
+    --color-bg: #f3f3f3;
+    --color-neutral: #d9d9d9;
+    --color-highlight: #f4ff73;
+
+    --color-static-black: #000;
+    --color-static-white: #fff;
+    --color-static-gray: #ccc;
+}
+
+html[data-theme="dark"] {
+    color-scheme: dark;
+
+    --color-text: #f3f3f3;
+    --color-bg: #333;
+    --color-neutral: #d9d9d9;
+    --color-highlight: #999e5f;
+
+    --color-static-black: #333;
+    --color-static-white: #f3f3f3;
+    --color-static-gray: #ccc;
+}
+
+$color-text: var(--color-text);
+$color-bg: var(--color-bg);
+$color-neutral: var(--color-neutral);
+$color-highlight: var(--color-highlight);
+
+$color-static-black: var(--color-static-black);
+$color-static-white: var(--color-static-white);
+$color-static-gray: var(--color-static-gray);

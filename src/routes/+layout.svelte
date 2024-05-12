@@ -17,6 +17,18 @@
 	}
 </script>
 
+<svelte:head>
+	<script>
+		var themeMode = localStorage.getItem('markin.v1.theme-mode');
+		if (themeMode === 'system') {
+			themeMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+				? 'dark'
+				: 'light';
+		}
+		document.documentElement.setAttribute('data-theme', themeMode);
+	</script>
+</svelte:head>
+
 <div class="dragbar">
 	<button class="minimize-button" on:click={minimizeWindow} />
 	<button class="maximize-button" on:click={maximizeWindow} />
@@ -63,7 +75,7 @@
 		left: 50%;
 		width: 10px;
 		height: 2px;
-		background: #000;
+		background: $color-text;
 		transform: translate(-50%, -50%);
 	}
 
@@ -71,7 +83,7 @@
 		background: none;
 		width: 10px;
 		height: 10px;
-		border: 2px solid #000;
+		border: 2px solid $color-text;
 	}
 
 	.close-button:after {
@@ -87,7 +99,7 @@
 		left: 50%;
 		width: 15px;
 		height: 2px;
-		background: #000;
+		background: $color-text;
 		transform: translate(-50%, -50%) rotate(-45deg);
 	}
 </style>

@@ -1,7 +1,16 @@
-import { sveltekit } from '@sveltejs/kit/vite';
+import { sveltekit } from "@sveltejs/kit/vite";
+import { defineConfig } from "vitest/config";
 
-const config = {
-	plugins: [sveltekit()],
-};
+export default defineConfig({
+  plugins: [sveltekit()],
 
-export default config;
+  css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: `
+        @use "src/lib/styles/variables/color.scss" as *;
+        `.trim(),
+      },
+    },
+  },
+});
