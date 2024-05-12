@@ -34,6 +34,7 @@
 	<div>
 		<MenuBar />
 	</div>
+	<div class="no-drag" />
 	<button class="minimize-button" on:click={minimizeWindow} />
 	<button class="maximize-button" on:click={maximizeWindow} />
 	<button class="close-button" on:click={closeWindow} />
@@ -50,14 +51,20 @@
 		z-index: 100;
 		height: 40px;
 		width: 100%;
-		display: flex;
+		display: grid;
+		grid-template-columns: 210px 1fr 40px 40px 40px;
 		justify-content: flex-end;
 		align-items: center;
 
-		& > div {
+		& > div:not(.no-drag) {
 			-webkit-app-region: no-drag;
-			flex: 1;
 			padding-left: 10px;
+			grid-column: 1 / 2;
+		}
+
+		& > .no-drag {
+			-webkit-app-region: no-drag;
+			grid-column: 2 / 3;
 		}
 	}
 

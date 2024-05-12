@@ -159,7 +159,7 @@ app.on('ready', function () {
 })
 
 ipcMain.handle('get-menu', async (event) => {
-	return template;
+	return tem;
 })
 
 app.on('activate', () => {

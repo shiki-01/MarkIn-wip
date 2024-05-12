@@ -125,6 +125,10 @@
 			<div class="rightSlot">⇧⌘T</div>
 		</div>
 		<div class="separator" use:melt={$separator} />
+		<div class="item" use:melt={$item} data-disabled>
+			Settings
+			<div class="rightSlot">⌘,</div>
+		</div>
 		<div use:melt={$separator} class="separator" />
 		<div class="item" use:melt={$item} on:click={() => handleItemClick('quit')}>
 			Quit Melt UI
