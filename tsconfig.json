@@ -40,6 +40,12 @@
 			"$lib/*": [
 				"src/lib/*"
 			],
+			"$icons": [
+				"src/icons"
+			],
+			"$icons/*": [
+				"src/icons/*"
+			],
 			"$app/*": [
 				".svelte/dev/runtime/app/*",
 				".svelte/build/runtime/app/*"

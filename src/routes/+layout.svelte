@@ -1,8 +1,24 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-
 	let ready: boolean = false;
-	onMount(() => (ready = true));
+
+	let menuItems: any[] = [];
+
+	onMount(async () => {
+		menuItems = await window.electron.invoke('get-menu');
+		ready = true;
+	});
+
+	let showMenu = false;
+	let showSubMenu = false;
+
+	function toggleMenu() {
+		showMenu = !showMenu;
+	}
+
+	function toggleSubMenu() {
+		showSubMenu = !showSubMenu;
+	}
 
 	function closeWindow() {
 		window.electron.send('close-window');
@@ -49,6 +65,29 @@
 		display: flex;
 		justify-content: flex-end;
 		align-items: center;
+	}
+
+	.icon-button {
+		position: absolute;
+		left: 0;
+		padding: 0;
+
+		img {
+			width: 40px;
+			height: 40px;
+		}
+	}
+
+	.menu {
+		position: absolute;
+		left: 0;
+		top: 40px;
+	}
+
+	.submenu {
+		position: absolute;
+		left: 100%;
+		top: 0;
 	}
 
 	button {
