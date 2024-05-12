@@ -33,11 +33,6 @@
 	let menuItems: MenuItem[] = [];
 	let ready: boolean = false;
 
-	onMount(async () => {
-		menuItems = await window.electron.invoke('get-menu');
-		ready = true;
-	});
-
 	const tipsAndTricks = writable(true);
 	const hideMeltUI = writable(false);
 	const wordWrap = writable(true);

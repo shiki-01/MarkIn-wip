@@ -1,10 +1,7 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import MenuBar from '$lib/components/MenuBar.svelte';
-	let ready: boolean = false;
-
-	let menuItems: any[] = [];
-
+	import Icon from '@iconify/svelte';
+	import 'the-new-css-reset';
 	function closeWindow() {
 		window.electron.send('close-window');
 	}
@@ -40,9 +37,15 @@
 	<button class="close-button" on:click={closeWindow} />
 </div>
 
-{#if ready}
+<main>
+	<header>
+		<div class="user">
+			<Icon icon="mdi:account" />
+			<span>Guest</span>
+		</div>
+	</header>
 	<slot />
-{/if}
+</main>
 
 <style lang="scss">
 	.dragbar {
@@ -52,7 +55,7 @@
 		height: 40px;
 		width: 100%;
 		display: grid;
-		grid-template-columns: 210px 1fr 40px 40px 40px;
+		grid-template-columns: 220px 1fr 40px 40px 40px;
 		justify-content: flex-end;
 		align-items: center;
 
@@ -118,5 +121,45 @@
 		height: 2px;
 		background: $color-text;
 		transform: translate(-50%, -50%) rotate(-45deg);
+	}
+
+	main {
+		padding-top: 40px;
+		display: grid;
+		grid-template-columns: 220px 1fr;
+		gap: 10px;
+
+		header {
+			height: calc(100vh - 40px);
+			display: grid;
+			grid-template-rows: 40px 40px 1fr;
+			padding: 0 10px;
+			background: $color-bg;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+			.user {
+				display: flex;
+				align-items: center;
+				gap: 5px;
+				font-size: 0.8rem;
+				color: $color-text;
+			}
+
+			button {
+				display: flex;
+				align-items: center;
+				gap: 5px;
+				font-size: 0.8rem;
+				color: $color-text;
+				background: none;
+				border: none;
+				cursor: pointer;
+				transition: background 0.2s;
+
+				&:hover {
+					background: rgba(0, 0, 0, 0.1);
+				}
+			}
+		}
 	}
 </style>
