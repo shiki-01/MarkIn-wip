@@ -16,47 +16,47 @@ const dev = !app.isPackaged;
 let mainWindow;
 
 function createWindow() {
-    let windowState = windowStateManager({
-        defaultWidth: 800,
-        defaultHeight: 600,
-    });
+	let windowState = windowStateManager({
+		defaultWidth: 800,
+		defaultHeight: 600,
+	});
 
-    const mainWindow = new BrowserWindow({
-        backgroundColor: 'whitesmoke',
-        titleBarStyle: 'hidden',
-        autoHideMenuBar: false,
-        trafficLightPosition: {
-            x: 17,
-            y: 32,
-        },
-        minHeight: 450,
-        minWidth: 500,
-        webPreferences: {
-            enableRemoteModule: true,
-            contextIsolation: true,
-            nodeIntegration: true,
-            spellcheck: false,
-            devTools: dev,
-            preload: path.join(__dirname, 'preload.cjs'),
-        },
-        x: windowState.x,
-        y: windowState.y,
-        width: windowState.width,
-        height: windowState.height,
-    });
+	const mainWindow = new BrowserWindow({
+		backgroundColor: 'whitesmoke',
+		titleBarStyle: 'hidden',
+		autoHideMenuBar: false,
+		trafficLightPosition: {
+			x: 17,
+			y: 32,
+		},
+		minHeight: 450,
+		minWidth: 500,
+		webPreferences: {
+			enableRemoteModule: true,
+			contextIsolation: true,
+			nodeIntegration: true,
+			spellcheck: false,
+			devTools: dev,
+			preload: path.join(__dirname, 'preload.cjs'),
+		},
+		x: windowState.x,
+		y: windowState.y,
+		width: windowState.width,
+		height: windowState.height,
+	});
 
-    windowState.manage(mainWindow);
+	windowState.manage(mainWindow);
 
-    mainWindow.once('ready-to-show', () => {
-        mainWindow.show();
-        mainWindow.focus();
-    });
+	mainWindow.once('ready-to-show', () => {
+		mainWindow.show();
+		mainWindow.focus();
+	});
 
-    mainWindow.on('close', () => {
-        windowState.saveState(mainWindow);
-    });
+	mainWindow.on('close', () => {
+		windowState.saveState(mainWindow);
+	});
 
-    return mainWindow;
+	return mainWindow;
 }
 
 ipcMain.on('close-window', () => {
@@ -110,43 +110,56 @@ const template = [
 	{
 		label: 'File',
 		submenu: [
-			{ label: 'New Window', click: () => { console.log('New Window') } },
-			{ type: 'separator' },
-			{ label: 'Open', accelerator: 'CmdOrCtrl+O', click: () => { console.log('Open File') } },
-			{ type: 'separator' },
-			{ label: 'Save', accelerator: 'CmdOrCtrl+S', click: () => { console.log('Save File') } },
-			{ label: 'Save As...', accelerator: 'Shift+CmdOrCtrl+S', click: () => { console.log('Save File As...') } },
-			{ type: 'separator' },
-			{ label: 'Close', accelerator: 'CmdOrCtrl+W', role: 'close' }
+			{ label: 'New' },
+			{ label: 'Open' },
+			{ label: 'Save' }
 		]
 	},
 	{
 		label: 'Edit',
 		submenu: [
-			{ label: 'Undo', accelerator: 'CmdOrCtrl+Z', role: 'undo' },
-			{ label: 'Redo', accelerator: 'Shift+CmdOrCtrl+Z', role: 'redo' },
-			{ type: 'separator' },
-			{ label: 'Cut', accelerator: 'CmdOrCtrl+X', role: 'cut' },
-			{ label: 'Copy', accelerator: 'CmdOrCtrl+C', role: 'copy' },
-			{ label: 'Paste', accelerator: 'CmdOrCtrl+V', role: 'paste' },
-			{ label: 'Select All', accelerator: 'CmdOrCtrl+A', role: 'selectall' }
+			{ label: 'Undo' },
+			{ label: 'Redo' },
+			{ label: 'Cut' },
+			{ label: 'Copy' },
+			{ label: 'Paste' }
+		]
+	},
+	{
+		label: 'View',
+		submenu: [
+			{ label: 'Reload' },
+			{ label: 'Zoom In' },
+			{ label: 'Zoom Out' },
+			{ label: 'Reset Zoom' },
+			{ label: 'Toggle Full Screen' },
+			{ label: 'Toggle Developer Tools' }
+		]
+	},
+	{
+		label: 'Window',
+		submenu: [
+			{ label: 'Minimize' },
+			{ label: 'Close' }
+		]
+	},
+	{
+		label: 'Help',
+		submenu: [
+			{ label: 'Learn More' }
 		]
 	}
-]
+];
 
 app.on('ready', function () {
+	if (process.platform === 'darwin') template.unshift({ role: 'appMenu' });
 	const menu = Menu.buildFromTemplate(template)
 	Menu.setApplicationMenu(menu)
 	createMainWindow();
 })
-ipcMain.handle('get-menu', () => {
-    const menuItems = Menu.getApplicationMenu().items.map(item => ({
-        label: item.label,
-        enabled: item.enabled,
-        click: item.click ? item.id : null
-    }));
-    console.log(menuItems);
-    return menuItems;
+
+ipcMain.handle('get-menu', async (event) => {
+	return template;
 })
 
 app.on('activate', () => {

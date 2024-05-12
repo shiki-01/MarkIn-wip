@@ -12,30 +12,10 @@
 	}
 
 	const agent = window.electron ? 'Electron' : 'Browser';
-
-	import { createCheckbox, melt } from '@melt-ui/svelte';
-
-	const {
-		elements: { root, input },
-		helpers: { isChecked, isIndeterminate },
-	} = createCheckbox({
-		defaultChecked: 'indeterminate',
-	});
 </script>
 
 <main>
 	<h1>Hello {agent}!</h1>
-
-	<form>
-		<div>
-			<button use:melt={$root} id="checkbox">
-				{#if $isIndeterminate}
-				{:else if $isChecked}{/if}
-				<input use:melt={$input} />
-			</button>
-			<label for="checkbox">Accept terms and conditions.</label>
-		</div>
-	</form>
 
 	{#if desktop}
 		<br />

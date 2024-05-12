@@ -1,24 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import MenuBar from '$lib/components/MenuBar.svelte';
 	let ready: boolean = false;
 
 	let menuItems: any[] = [];
-
-	onMount(async () => {
-		menuItems = await window.electron.invoke('get-menu');
-		ready = true;
-	});
-
-	let showMenu = false;
-	let showSubMenu = false;
-
-	function toggleMenu() {
-		showMenu = !showMenu;
-	}
-
-	function toggleSubMenu() {
-		showSubMenu = !showSubMenu;
-	}
 
 	function closeWindow() {
 		window.electron.send('close-window');
@@ -46,6 +31,9 @@
 </svelte:head>
 
 <div class="dragbar">
+	<div>
+		<MenuBar />
+	</div>
 	<button class="minimize-button" on:click={minimizeWindow} />
 	<button class="maximize-button" on:click={maximizeWindow} />
 	<button class="close-button" on:click={closeWindow} />
@@ -65,29 +53,12 @@
 		display: flex;
 		justify-content: flex-end;
 		align-items: center;
-	}
 
-	.icon-button {
-		position: absolute;
-		left: 0;
-		padding: 0;
-
-		img {
-			width: 40px;
-			height: 40px;
+		& > div {
+			-webkit-app-region: no-drag;
+			flex: 1;
+			padding-left: 10px;
 		}
-	}
-
-	.menu {
-		position: absolute;
-		left: 0;
-		top: 40px;
-	}
-
-	.submenu {
-		position: absolute;
-		left: 100%;
-		top: 0;
 	}
 
 	button {

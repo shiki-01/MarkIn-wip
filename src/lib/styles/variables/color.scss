@@ -4,7 +4,8 @@
     --color-text: #000;
     --color-bg: #f3f3f3;
     --color-neutral: #d9d9d9;
-    --color-highlight: #f4ff73;
+    --color-highlight: #cef8ff;
+    --color-main: #00a9c7;
 
     --color-static-black: #000;
     --color-static-white: #fff;
@@ -28,6 +29,7 @@ $color-text: var(--color-text);
 $color-bg: var(--color-bg);
 $color-neutral: var(--color-neutral);
 $color-highlight: var(--color-highlight);
+$color-main: var(--color-main);
 
 $color-static-black: var(--color-static-black);
 $color-static-white: var(--color-static-white);
