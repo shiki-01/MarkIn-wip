@@ -9,6 +9,7 @@ export default defineConfig({
       scss: {
         additionalData: `
         @use "src/lib/styles/variables/color.scss" as *;
+        @use "src/lib/styles/variables/font.scss" as *;
         `.trim(),
       },
     },

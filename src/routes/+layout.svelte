@@ -2,6 +2,9 @@
 	import MenuBar from '$lib/components/MenuBar.svelte';
 	import Icon from '@iconify/svelte';
 	import 'the-new-css-reset';
+	import '@fontsource-variable/m-plus-1';
+	import '@fontsource/noto-color-emoji';
+	import '@fontsource-variable/jetbrains-mono';
 	function closeWindow() {
 		window.electron.send('close-window');
 	}
@@ -37,15 +40,17 @@
 	<button class="close-button" on:click={closeWindow} />
 </div>
 
-<main>
+<div class="body">
 	<header>
 		<div class="user">
 			<Icon icon="mdi:account" />
 			<span>Guest</span>
 		</div>
 	</header>
-	<slot />
-</main>
+	<main>
+		<slot />
+	</main>
+</div>
 
 <style lang="scss">
 	.dragbar {
@@ -58,6 +63,7 @@
 		grid-template-columns: 220px 1fr 40px 40px 40px;
 		justify-content: flex-end;
 		align-items: center;
+		border-bottom: 2px solid $color-border;
 
 		& > div:not(.no-drag) {
 			-webkit-app-region: no-drag;
@@ -123,7 +129,7 @@
 		transform: translate(-50%, -50%) rotate(-45deg);
 	}
 
-	main {
+	.body {
 		padding-top: 40px;
 		display: grid;
 		grid-template-columns: 220px 1fr;
@@ -135,7 +141,6 @@
 			grid-template-rows: 40px 40px 1fr;
 			padding: 0 10px;
 			background: $color-bg;
-			box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 
 			.user {
 				display: flex;

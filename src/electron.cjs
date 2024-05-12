@@ -33,8 +33,8 @@ function createWindow() {
 		minWidth: 500,
 		webPreferences: {
 			enableRemoteModule: true,
-			contextIsolation: true,
-			nodeIntegration: true,
+			contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+			nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
 			spellcheck: false,
 			devTools: dev,
 			preload: path.join(__dirname, 'preload.cjs'),
@@ -110,56 +110,33 @@ const template = [
 	{
 		label: 'File',
 		submenu: [
-			{ label: 'New' },
-			{ label: 'Open' },
-			{ label: 'Save' }
+			{ label: 'New', click: () => console.log('New File') },
+			{ label: 'Open', click: () => console.log('Open File') },
+			{ label: 'Save', click: () => console.log('Save File') },
+			{ type: 'separator' },
+			{ label: 'Exit', role: 'quit' }
 		]
 	},
 	{
 		label: 'Edit',
 		submenu: [
-			{ label: 'Undo' },
-			{ label: 'Redo' },
-			{ label: 'Cut' },
-			{ label: 'Copy' },
-			{ label: 'Paste' }
-		]
-	},
-	{
-		label: 'View',
-		submenu: [
-			{ label: 'Reload' },
-			{ label: 'Zoom In' },
-			{ label: 'Zoom Out' },
-			{ label: 'Reset Zoom' },
-			{ label: 'Toggle Full Screen' },
-			{ label: 'Toggle Developer Tools' }
-		]
-	},
-	{
-		label: 'Window',
-		submenu: [
-			{ label: 'Minimize' },
-			{ label: 'Close' }
-		]
-	},
-	{
-		label: 'Help',
-		submenu: [
-			{ label: 'Learn More' }
+			{ label: 'Undo', role: 'undo' },
+			{ label: 'Redo', role: 'redo' },
+			{ type: 'separator' },
+			{ label: 'Cut', role: 'cut' },
+			{ label: 'Copy', role: 'copy' },
+			{ label: 'Paste', role: 'paste' }
 		]
 	}
-];
-
+]
 app.on('ready', function () {
-	if (process.platform === 'darwin') template.unshift({ role: 'appMenu' });
 	const menu = Menu.buildFromTemplate(template)
 	Menu.setApplicationMenu(menu)
 	createMainWindow();
 })
 
 ipcMain.handle('get-menu', async (event) => {
-	return tem;
+	return template;
 })
 
 app.on('activate', () => {

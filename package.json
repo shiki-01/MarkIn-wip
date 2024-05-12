@@ -23,6 +23,9 @@
 		"Chrome 89"
 	],
 	"dependencies": {
+		"@fontsource-variable/jetbrains-mono": "^5.0.21",
+		"@fontsource-variable/m-plus-1": "^5.0.17",
+		"@fontsource/noto-color-emoji": "^5.0.27",
 		"@tailwindcss/typography": "^0.5.13",
 		"electron-context-menu": "^3.6.1",
 		"electron-reloader": "^1.2.3",

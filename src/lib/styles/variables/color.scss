@@ -6,6 +6,7 @@
     --color-neutral: #d9d9d9;
     --color-highlight: #cef8ff;
     --color-main: #00a9c7;
+    --color-border: #ccc;
 
     --color-static-black: #000;
     --color-static-white: #fff;
@@ -19,6 +20,8 @@ html[data-theme="dark"] {
     --color-bg: #333;
     --color-neutral: #d9d9d9;
     --color-highlight: #999e5f;
+    --color-main: #00a9c7;
+    --color-border: #666;
 
     --color-static-black: #333;
     --color-static-white: #f3f3f3;
@@ -30,6 +33,7 @@ $color-bg: var(--color-bg);
 $color-neutral: var(--color-neutral);
 $color-highlight: var(--color-highlight);
 $color-main: var(--color-main);
+$color-border: var(--color-border);
 
 $color-static-black: var(--color-static-black);
 $color-static-white: var(--color-static-white);

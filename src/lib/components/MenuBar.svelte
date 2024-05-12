@@ -296,7 +296,9 @@
 	}
 
 	.item {
-		padding: 0.2rem 1rem;
+		margin: 0.1rem 0.5rem;
+		padding: 0.1rem 0.5rem;
+		border-radius: 5px;
 		display: flex;
 		gap: 0.5rem;
 		justify-content: left;
@@ -305,6 +307,11 @@
 		transition: background-color 0.2s;
 
 		.check {
+			width: 1em;
+			height: 1em;
+			display: flex;
+			justify-content: center;
+			align-items: center;
 			background: $color-main;
 			border-radius: 2px;
 		}
@@ -315,7 +322,7 @@
 		}
 
 		&:hover {
-			background-color: #f0f0f0;
+			background-color: $color-highlight;
 		}
 	}
 </style>
