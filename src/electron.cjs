@@ -4,6 +4,23 @@ const contextMenu = require('electron-context-menu');
 const serve = require('electron-serve');
 const path = require('path');
 
+ipcMain.on('close-window', () => {
+    BrowserWindow.getFocusedWindow().close();
+});
+
+ipcMain.on('minimize-window', () => {
+    BrowserWindow.getFocusedWindow().minimize();
+});
+
+ipcMain.on('maximize-window', () => {
+    const currentWindow = BrowserWindow.getFocusedWindow();
+    if (currentWindow.isMaximized()) {
+        currentWindow.unmaximize();
+    } else {
+        currentWindow.maximize();
+    }
+});
+
 try {
 	require('electron-reloader')(module);
 } catch (e) {
