@@ -30,9 +30,6 @@
 		}
 	}
 
-	let menuItems: MenuItem[] = [];
-	let ready: boolean = false;
-
 	const tipsAndTricks = writable(true);
 	const hideMeltUI = writable(false);
 	const wordWrap = writable(true);
@@ -290,9 +287,15 @@
 		background-color: $color-bg;
 		box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 		border-radius: 5px;
-		padding: 0.5rem 0;
+		padding: 0.5rem 1rem;
 		min-width: 200px;
 		transition: opacity 0.2s;
+
+		.separator {
+			height: 1px;
+			background-color: $color-border;
+			margin: 0.5rem 0;
+		}
 	}
 
 	.item {
@@ -305,6 +308,7 @@
 		align-items: center;
 		cursor: pointer;
 		transition: background-color 0.2s;
+		font-size: 0.9em;
 
 		.check {
 			width: 1em;

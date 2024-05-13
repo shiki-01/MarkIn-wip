@@ -1,14 +1,19 @@
 <script lang="ts">
 	import { writable } from 'svelte/store';
 	import { createCheckbox, createMenubar, melt } from '@melt-ui/svelte';
-	import { ipcRenderer } from 'electron';
 	import { onMount } from 'svelte';
 
-	let template: any[] = [];
+	let template: any = null;
 
-	onMount(async () => {
-		template = ipcRenderer.sendSync('get-menu');
+	onMount(() => {
+		if (typeof window !== 'undefined' && window.electron) {
+			template = window.electron.send('get-menu');
+		}
 	});
+
+	$: {
+		console.log(template);
+	}
 
 	const tipsAndTricks = writable(true);
 	const hideMeltUI = writable(false);
@@ -63,12 +68,5 @@
 </script>
 
 <div class="flex rounded-md bg-white p-1 shadow-md" use:melt={$menubar}>
-	{#each template as menuData}
-		<button type="button" class="trigger" use:melt={$trigger}>{menuData.label}</button>
-		<div class="menu" use:melt={$menu}>
-			{#each menuData.submenu as itemData}
-				<div class="item" use:melt={$item}>{itemData.label}</div>
-			{/each}
-		</div>
-	{/each}
+	{#if template}{/if}
 </div>

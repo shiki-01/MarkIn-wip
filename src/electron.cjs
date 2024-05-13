@@ -33,11 +33,11 @@ function createWindow() {
 		minWidth: 500,
 		webPreferences: {
 			enableRemoteModule: true,
-			contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
-			nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
 			spellcheck: false,
+			nodeIntegration: false,
+			contextIsolation: true,
 			devTools: dev,
-			preload: path.join(__dirname, 'preload.cjs'),
+			preload: path.join(app.getAppPath(), 'preload.cjs'),
 		},
 		x: windowState.x,
 		y: windowState.y,
@@ -106,38 +106,9 @@ function createMainWindow() {
 	else serveURL(mainWindow);
 }
 
-const template = [
-	{
-		label: 'File',
-		submenu: [
-			{ label: 'New', click: () => console.log('New File') },
-			{ label: 'Open', click: () => console.log('Open File') },
-			{ label: 'Save', click: () => console.log('Save File') },
-			{ type: 'separator' },
-			{ label: 'Exit', role: 'quit' }
-		]
-	},
-	{
-		label: 'Edit',
-		submenu: [
-			{ label: 'Undo', role: 'undo' },
-			{ label: 'Redo', role: 'redo' },
-			{ type: 'separator' },
-			{ label: 'Cut', role: 'cut' },
-			{ label: 'Copy', role: 'copy' },
-			{ label: 'Paste', role: 'paste' }
-		]
-	}
-]
 app.on('ready', function () {
-	const menu = Menu.buildFromTemplate(template)
-	Menu.setApplicationMenu(menu)
 	createMainWindow();
-})
-
-ipcMain.handle('get-menu', async (event) => {
-	return template;
-})
+});
 
 app.on('activate', () => {
 	if (!mainWindow) {

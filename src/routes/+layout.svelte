@@ -1,6 +1,7 @@
 <script lang="ts">
 	import MenuBar from '$lib/components/MenuBar.svelte';
 	import Icon from '@iconify/svelte';
+	import { slide } from 'svelte/transition';
 	import 'the-new-css-reset';
 	import '@fontsource-variable/m-plus-1';
 	import '@fontsource/noto-color-emoji';
@@ -15,6 +16,12 @@
 
 	function maximizeWindow() {
 		window.electron.send('maximize-window');
+	}
+
+	$: isOpen = false;
+
+	function toggleMenu() {
+		isOpen = !isOpen;
 	}
 </script>
 
@@ -40,13 +47,28 @@
 	<button class="close-button" on:click={closeWindow} />
 </div>
 
-<div class="body">
-	<header>
-		<div class="user">
-			<Icon icon="mdi:account" />
-			<span>Guest</span>
+<div class="body" class:open={isOpen}>
+	<div>
+		<div class="open">
+			<button on:click={toggleMenu}>
+				{#if isOpen}
+					<Icon icon="material-symbols:dock-to-left-outline" width={25} color="black" />
+				{:else}
+					<Icon icon="material-symbols:dock-to-right-outline" width={25} color="black" />
+				{/if}
+			</button>
 		</div>
-	</header>
+		{#if isOpen}
+			<header transition:slide={{ duration: 200, axis: `x` }}>
+				<div class="user">
+					<div class="icon">
+						<Icon icon="mdi:account" color="#eee" />
+					</div>
+					<span>Guest</span>
+				</div>
+			</header>
+		{/if}
+	</div>
 	<main>
 		<slot />
 	</main>
@@ -132,39 +154,72 @@
 	.body {
 		padding-top: 40px;
 		display: grid;
-		grid-template-columns: 220px 1fr;
-		gap: 10px;
+		grid-template-columns: 45px 1fr;
+		transition: grid-template-columns 0.2s;
 
-		header {
-			height: calc(100vh - 40px);
+		&.open {
+			grid-template-columns: 220px 1fr;
+		}
+
+		div {
 			display: grid;
-			grid-template-rows: 40px 40px 1fr;
-			padding: 0 10px;
+			grid-template-rows: 45px 1fr;
 			background: $color-bg;
+			border-right: 2px solid $color-border;
+			transition: border-right 0.2s;
 
-			.user {
-				display: flex;
-				align-items: center;
-				gap: 5px;
-				font-size: 0.8rem;
-				color: $color-text;
-			}
+			header {
+				height: calc(100vh - 40px - 45px);
+				display: grid;
+				grid-template-rows: 40px 40px 40px 1fr;
+				padding: 10px;
 
-			button {
-				display: flex;
-				align-items: center;
-				gap: 5px;
-				font-size: 0.8rem;
-				color: $color-text;
-				background: none;
-				border: none;
-				cursor: pointer;
-				transition: background 0.2s;
+				.user {
+					display: grid;
+					align-items: center;
+					justify-content: center;
+					gap: 10px;
+					color: $color-text;
+					grid-template-columns: 40px 1fr;
+					border: none;
 
-				&:hover {
-					background: rgba(0, 0, 0, 0.1);
+					.icon {
+						width: 40px;
+						height: 40px;
+						display: grid;
+						place-items: center;
+						background: $color-main;
+						border-radius: 50%;
+					}
 				}
 			}
+
+			.open {
+				display: grid;
+				align-items: top;
+				justify-content: start;
+				width: 45px;
+				height: calc(100vh - 40px);
+				border: none;
+
+				button {
+					padding: 10px;
+					background: none;
+					width: 45px;
+					height: 45px;
+					position: relative;
+					border: none;
+					cursor: pointer;
+					transition: background 0.2s;
+
+					&:hover {
+						background: none;
+					}
+				}
+			}
+		}
+
+		main {
 		}
 	}
 </style>

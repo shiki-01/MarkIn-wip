@@ -23,6 +23,7 @@
 		"Chrome 89"
 	],
 	"dependencies": {
+		"@electron-toolkit/preload": "^3.0.1",
 		"@fontsource-variable/jetbrains-mono": "^5.0.21",
 		"@fontsource-variable/m-plus-1": "^5.0.17",
 		"@fontsource/noto-color-emoji": "^5.0.27",
@@ -30,6 +31,7 @@
 		"electron-context-menu": "^3.6.1",
 		"electron-reloader": "^1.2.3",
 		"electron-serve": "^1.1.0",
+		"electron-vite": "^2.2.0",
 		"electron-window-state": "^5.0.3",
 		"the-new-css-reset": "^1.11.2",
 		"vite": "^4.5.3"
@@ -40,6 +42,7 @@
 		"@melt-ui/svelte": "^0.79.1",
 		"@sveltejs/adapter-static": "2.0.1",
 		"@sveltejs/kit": "1.14.0",
+		"@types/node": "^20.12.11",
 		"@typescript-eslint/eslint-plugin": "^5.56.0",
 		"@typescript-eslint/parser": "^5.56.0",
 		"autoprefixer": "^10.4.19",
