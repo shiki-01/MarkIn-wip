@@ -29,8 +29,8 @@ const cmdFunction = async (cmd: string): Promise<string> => {
     const exec = promisify(childProcess.exec);
     try {
         const result = await exec(cmd, { encoding: "utf8" });
-        if (result?.error) {
-            const errorstr = SJIStoUNICODE(result.error);
+        if (result.stderr) {
+            const errorstr = SJIStoUNICODE(result.stderr);
             return errorstr;
         }
 

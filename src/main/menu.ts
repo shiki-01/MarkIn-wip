@@ -2,6 +2,7 @@ import {
     app,
     Menu,
     shell,
+    ipcMain,
     BrowserWindow,
     MenuItemConstructorOptions,
 } from "electron";

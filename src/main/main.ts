@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, ipcMain, Menu } from "electron";
 import fsFunctionListener from "./functions/fsFunction";
 import shellFunctionListener from "./functions/shellFunction";
 import testFunctionListener from "./functions/testFunction";
@@ -24,10 +24,54 @@ if (require("electron-squirrel-startup")) {
   app.quit();
 }
 
+ipcMain.handle('get-menu-data', async (event) => {
+  const menu = Menu.getApplicationMenu();
+  if (!menu) {
+    return null;
+  }
+
+  const serializableData = menu.items.map(item => ({
+    id: item.id,
+    label: item.label,
+    accelerator: item.accelerator || null,
+    visible: item.visible,
+    subitem: item.submenu ? item.submenu.items.map(subitem => ({
+      id: subitem.id,
+      label: subitem.label,
+      accelerator: subitem.accelerator || null,
+      visible: subitem.visible,
+    })) : null,
+  }));
+
+  return serializableData;
+});
+
+ipcMain.handle('window-close', () => {
+  const window = BrowserWindow.getFocusedWindow();
+  if (window) window.close();
+});
+
+ipcMain.handle('window-maximize', () => {
+  const window = BrowserWindow.getFocusedWindow();
+  if (window) {
+      if (window.isMaximized()) {
+          window.unmaximize();
+      } else {
+          window.maximize();
+      }
+  }
+});
+
+ipcMain.handle('window-minimize', () => {
+  const window = BrowserWindow.getFocusedWindow();
+  if (window) window.minimize();
+});
+
 const createWindow = async () => {
   mainWindow = new BrowserWindow({
     width: 1024,
     height: 728,
+    frame: false,
     webPreferences: {
       // webpack が出力したプリロードスクリプトを読み込み
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,

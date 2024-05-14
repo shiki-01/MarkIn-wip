@@ -3,8 +3,12 @@ import { rules } from "./webpack.rules";
 import { plugins } from "./webpack.plugins";
 
 rules.push({
-  test: /\.css$/,
-  use: [{ loader: "style-loader" }, { loader: "css-loader" }],
+  test: /\.scss$/,
+  use: [
+    'style-loader',
+    'css-loader',
+    'sass-loader'
+  ]
 });
 
 export const rendererConfig: Configuration = {
@@ -15,5 +19,9 @@ export const rendererConfig: Configuration = {
   resolve: {
     extensions: [".js", ".ts", ".jsx", ".tsx", ".css"],
     modules: ["./src", "./node_modules"],
+    fallback: {
+      "fs": false,
+      "path": require.resolve("path-browserify")
+    }
   },
 };

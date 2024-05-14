@@ -1,12 +1,19 @@
+import { FluentProvider, webLightTheme } from '@fluentui/react-components';
 import Router from "renderer/Router";
-import "./style/_global.css"
+import MenuBar from "renderer/components/MenuBar"
+import "./style/_global.scss"
 
 const App = () => {
   return (
-    <div>
-      App
-      <Router />
-    </div>
+    <FluentProvider theme={webLightTheme}>
+      <div>
+        <MenuBar />
+      </div>
+      <div>
+        App
+        <Router />
+      </div>
+    </FluentProvider>
   );
 };
 
