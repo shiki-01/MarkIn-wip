@@ -24,5 +24,65 @@ body {
 }
 
 .can-drag {
-    -webkit-app-region: drag;
+  -webkit-app-region: drag;
+}
+
+.main {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 20px;
+  height: calc(100vh - 40px);
+  transition: all 0.3s;
+
+  .toggle-wrap {
+    position: rerative;
+
+    .person {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 40px 1fr 40px 40px;
+      gap: 5px;
+      align-items: center;
+
+      .setting {
+        display: none;
+      }
+
+      &:hover > .setting {
+        display: block;
+      }
+    }
+  }
+
+  .toggle-opener {
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    transition: left 0.3s;
+
+    button {
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+      border-top-right-radius: 50vh;
+      border-bottom-right-radius: 50vh;
+      background: #45e3ff;
+      text-align: center;
+      transition: all 0.3s;
+
+      &:hover {
+        color: #ffffff;
+      }
+    }
+
+    &.open {
+      left: -50px;
+    }
+  }
+
+  &:has(.toggle-wrap.open) {
+    grid-template-columns: 320px 2fr;
+  }
 }

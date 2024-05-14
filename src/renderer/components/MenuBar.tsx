@@ -1,15 +1,13 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 
-import { ThemeProvider } from 'styled-components';
 import {
-    Button,
+    MenuButton,
     Menu,
     MenuTrigger,
     MenuList,
     MenuItem,
     MenuPopover,
-    webLightTheme,
 } from "@fluentui/react-components";
 
 
@@ -92,7 +90,7 @@ const MenuBar = () => {
             <div>
                 <Menu>
                     <MenuTrigger disableButtonEnhancement>
-                        <Button><MenuIcon /></Button>
+                        <MenuButton icon={<MenuIcon width={40} />} size="large" />
                     </MenuTrigger>
 
                     <MenuPopover>
