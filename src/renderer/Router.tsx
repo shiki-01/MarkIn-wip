@@ -1,14 +1,15 @@
 import { MemoryRouter, Outlet, Route, Routes } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useContext, useEffect } from "react";
 import FunctionTestPage from "./pages/FunctionTestPage";
 import IndexPage from "./pages/IndexPage";
 import Setting from "./pages/Setting";
+import IsSetting from "./components/IsSetting";
 
 const Router = () => {
-  const [isSetting, setIsSetting] = useState(false);
+  const { isSetting, setIsSetting } = useContext(IsSetting);
 
   useEffect(() => {
-    window.electron.on('set-isSetting', (_: any, value: boolean | ((prevState: boolean) => boolean)) => {
+    window.electron.on('set-isSetting', (_: any, value: boolean) => {
       setIsSetting(value);
     });
 

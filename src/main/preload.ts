@@ -50,9 +50,9 @@ const electronHandler = {
         minimize: async () => {
             await ipcRenderer.invoke('window-minimize');
         },
-        openSettings: () => {
-            ipcRenderer.on('open-settings', () => {
-            });
+        saveSetting: async (config: any) => {
+            console.log(config)
+            await ipcRenderer.invoke('save-setting', config);
         },
 
         menu: Object.fromEntries(menuMethods.map(method => [

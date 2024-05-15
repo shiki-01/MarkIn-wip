@@ -1125,6 +1125,22 @@
     "@griffel/react" "^1.5.14"
     "@swc/helpers" "^0.5.1"
 
+"@fluentui/react-nav-preview@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@fluentui/react-nav-preview/-/react-nav-preview-0.1.0.tgz#55c8bf2f563c2eb90e5c1eadb224b3d2c10cf90e"
+  integrity sha512-bxyVzx8MopkXRdVtJA+e//XlEzvY492XoRI+Xp1B0RLmXnVZSDeOKXgYLr9KNqzZPCSRv7U7IH6uvWr8nMB0hQ==
+  dependencies:
+    "@fluentui/react-context-selector" "^9.1.59"
+    "@fluentui/react-drawer" "^9.3.0"
+    "@fluentui/react-icons" "^2.0.237"
+    "@fluentui/react-jsx-runtime" "^9.0.37"
+    "@fluentui/react-shared-contexts" "^9.18.0"
+    "@fluentui/react-tabster" "^9.21.2"
+    "@fluentui/react-theme" "^9.1.19"
+    "@fluentui/react-utilities" "^9.18.8"
+    "@griffel/react" "^1.5.14"
+    "@swc/helpers" "^0.5.1"
+
 "@fluentui/react-overflow@^9.1.18":
   version "9.1.18"
   resolved "https://registry.yarnpkg.com/@fluentui/react-overflow/-/react-overflow-9.1.18.tgz#b574c1d2b78474465bf2def7670940de17e1d047"
