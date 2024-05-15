@@ -2,11 +2,13 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 
 import {
+    Button,
     MenuButton,
     Menu,
     MenuTrigger,
     MenuList,
     MenuItem,
+    MenuDivider,
     MenuPopover,
 } from "@fluentui/react-components";
 
@@ -31,6 +33,7 @@ const handleMinimizeWindow = () => {
 type MenuItem = {
     label: string;
     accelerator?: string;
+    id: string;
     subitem?: MenuItem[];
 }
 
@@ -40,21 +43,21 @@ const MenuBar = () => {
     useEffect(() => {
         const fetchMenuData = async () => {
             const data = await window.electron.menu.getMenuData();
-            const updateLabels = (items: MenuItem[]) => {
-                return items.map((item) => {
-                    const updatedItem = { ...item };
-                    if (item.label.startsWith('&')) {
-                        updatedItem.label = item.label.substring(1);
-                    }
-                    if (item.subitem) {
-                        updatedItem.subitem = updateLabels(item.subitem);
-                    }
-                    return updatedItem;
-                });
-            };
-            const updatedData = updateLabels(data);
-            setMenuData(updatedData);
-        };
+                const updateLabels = (items: MenuItem[]) => {
+                    return items.map((item) => {
+                        const updatedItem = { ...item };
+                        if (item.label.startsWith('&')) {
+                            updatedItem.label = item.label.substring(1);
+                        }
+                        if (item.subitem) {
+                            updatedItem.subitem = updateLabels(item.subitem);
+                        }
+                        return updatedItem;
+                    });
+                };
+                const updatedData = updateLabels(data);
+                setMenuData(updatedData);
+            }
 
         fetchMenuData();
     }, []);
@@ -74,13 +77,37 @@ const MenuBar = () => {
                         </MenuPopover>
                     </Menu>
                 );
+            } else if (item.label === "MenuDivider") {
+                return (
+                    <MenuDivider />
+                )
             } else {
-                return <MenuItem
-                    key={item.label}
-                    secondaryContent={item.accelerator}
-                >
-                    {item.label}
-                </MenuItem>;
+                if (item.id) {
+                    return (
+                        <MenuItem
+                            key={item.label}
+                            secondaryContent={item.accelerator}
+                            onClick={() => {
+                                if (typeof window.electron.window.menu[item.id] === 'function') {
+                                    window.electron.window.menu[item.id]();
+                                } else {
+                                    console.error(`Function ${item.id} does not exist on window.electron.window.menu`);
+                                }
+                            }}
+                        >
+                            {item.label}
+                        </MenuItem>
+                    )
+                } else {
+                    return (
+                        <MenuItem
+                            key={item.label}
+                            secondaryContent={item.accelerator}
+                        >
+                            {item.label}
+                        </MenuItem>
+                    )
+                }
             }
         });
     };
@@ -102,9 +129,9 @@ const MenuBar = () => {
             </div>
             <span className="can-drag" />
             <div>
-                <button onClick={handleMinimizeWindow} title="Minimize Window"><Minimize /></button>
-                <button onClick={handleMaximizeWindow} title="Maximize Window"><SquareOutlined /></button>
-                <button onClick={handleCloseWindow} title="Close Window"><Close /></button>
+                <Button icon={<Minimize />} appearance="subtle" size="large" onClick={() => handleMinimizeWindow()} />
+                <Button icon={<SquareOutlined />} appearance="subtle" size="large" onClick={() => handleMaximizeWindow()} />
+                <Button icon={<Close />} appearance="subtle" size="large" onClick={() => handleCloseWindow()} />
             </div>
         </div>
     );

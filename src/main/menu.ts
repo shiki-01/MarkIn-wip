@@ -107,23 +107,14 @@ export default class MenuBuilder {
                 {
                     label: "Reload",
                     accelerator: "Command+R",
-                    click: () => {
-                        this.mainWindow.webContents.reload();
-                    },
                 },
                 {
                     label: "Toggle Full Screen",
                     accelerator: "Ctrl+Command+F",
-                    click: () => {
-                        this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen());
-                    },
                 },
                 {
                     label: "Toggle Developer Tools",
                     accelerator: "Alt+Command+I",
-                    click: () => {
-                        this.mainWindow.webContents.toggleDevTools();
-                    },
                 },
             ],
         };
@@ -133,9 +124,6 @@ export default class MenuBuilder {
                 {
                     label: "Toggle Full Screen",
                     accelerator: "Ctrl+Command+F",
-                    click: () => {
-                        this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen());
-                    },
                 },
             ],
         };
@@ -157,29 +145,15 @@ export default class MenuBuilder {
             submenu: [
                 {
                     label: "Learn More",
-                    click() {
-                        shell.openExternal("https://electronjs.org");
-                    },
                 },
                 {
                     label: "Documentation",
-                    click() {
-                        shell.openExternal(
-                            "https://github.com/electron/electron/tree/main/docs#readme"
-                        );
-                    },
                 },
                 {
                     label: "Community Discussions",
-                    click() {
-                        shell.openExternal("https://www.electronjs.org/community");
-                    },
                 },
                 {
                     label: "Search Issues",
-                    click() {
-                        shell.openExternal("https://github.com/electron/electron/issues");
-                    },
                 },
             ],
         };
@@ -205,9 +179,6 @@ export default class MenuBuilder {
                     {
                         label: "&閉じる",
                         accelerator: "Ctrl+W",
-                        click: () => {
-                            this.mainWindow.close();
-                        },
                     },
                 ],
             },
@@ -220,67 +191,50 @@ export default class MenuBuilder {
                             {
                                 label: "&再読み込み",
                                 accelerator: "Ctrl+R",
-                                click: () => {
-                                    this.mainWindow.webContents.reload();
-                                },
                             },
                             {
                                 label: "&フルスクリーン",
                                 accelerator: "F11",
-                                click: () => {
-                                    this.mainWindow.setFullScreen(
-                                        !this.mainWindow.isFullScreen()
-                                    );
-                                },
+                                id: "log"
                             },
                             {
                                 label: "&Developer Tools",
                                 accelerator: "Alt+Ctrl+I",
-                                click: () => {
-                                    this.mainWindow.webContents.toggleDevTools();
-                                },
                             },
                         ]
                         : [
                             {
                                 label: "&フルスクリーン",
                                 accelerator: "F11",
-                                click: () => {
-                                    this.mainWindow.setFullScreen(
-                                        !this.mainWindow.isFullScreen()
-                                    );
-                                },
+                                id: "log"
                             },
                         ],
+            },
+            {
+                label: "MenuDivider",
+            },
+            {
+                label: "設定",
+                accelerator: "Ctrl+S",
+                id: "open-settings"
+            },
+            {
+                label: "MenuDivider",
             },
             {
                 label: "ヘルプ",
                 submenu: [
                     {
                         label: "Electron公式",
-                        click() {
-                            shell.openExternal("https://electronjs.org");
-                        },
                     },
                     {
                         label: "Electron リポジトリ",
-                        click() {
-                            shell.openExternal(
-                                "https://github.com/electron/electron/tree/main/docs#readme"
-                            );
-                        },
                     },
                     {
                         label: "Electron コミュニティ",
-                        click() {
-                            shell.openExternal("https://www.electronjs.org/community");
-                        },
                     },
                     {
                         label: "Electron Issues",
-                        click() {
-                            shell.openExternal("https://github.com/electron/electron/issues");
-                        },
                     },
                 ],
             },

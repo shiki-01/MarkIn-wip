@@ -1,6 +1,6 @@
 {
-  "name": "electron-my-app",
-  "productName": "electron-my-app",
+  "name": "MarkIn",
+  "productName": "MarkIn",
   "version": "1.0.1",
   "description": "My Electron application description",
   "main": ".webpack/main",

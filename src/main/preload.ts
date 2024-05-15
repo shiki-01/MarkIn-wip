@@ -4,8 +4,16 @@ import {
     BrowserWindow,
 } from "electron";
 
+const menuMethods = ['log', 'open-settings'];
+
 // レンダラープロセスとメインプロセスの通信はこちらで定義する
 const electronHandler = {
+    on: (channel: string, callback: (event: Electron.IpcRendererEvent, ...args: any[]) => void) => {
+        ipcRenderer.on(channel, callback);
+    },
+    removeListener: (channel: string, callback: (event: Electron.IpcRendererEvent, ...args: any[]) => void) => {
+        ipcRenderer.removeListener(channel, callback);
+    },
     test: {
         sendTest: (testMsg: string) => {
             ipcRenderer.send("test-msg", [testMsg]);
@@ -22,6 +30,10 @@ const electronHandler = {
             return data;
         },
     },
+    getSetting: () => {
+        const config = ipcRenderer.invoke('get-setting');
+        return config
+    },
     menu: {
         getMenuData: async () => {
             const data = await ipcRenderer.invoke("get-menu-data");
@@ -37,7 +49,16 @@ const electronHandler = {
         },
         minimize: async () => {
             await ipcRenderer.invoke('window-minimize');
-        }
+        },
+        openSettings: () => {
+            ipcRenderer.on('open-settings', () => {
+            });
+        },
+
+        menu: Object.fromEntries(menuMethods.map(method => [
+            method,
+            async (...args: any[]) => await ipcRenderer.invoke(method, args)
+        ])),
     }
 };
 

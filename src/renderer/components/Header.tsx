@@ -55,7 +55,7 @@ const DrawerSeparatorExample: React.FC<DrawerSeparatorExampleProps> = ({
                     <Avatar icon={<Person />} aria-label="Guest" />
                     <p>Guest</p>
                     <span className="setting">
-                        <Button icon={<Settings />} />
+                        <Button icon={<Settings />} size="small" appearance="transparent" />
                     </span>
                 </div>
             </DrawerBody>
