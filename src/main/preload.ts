@@ -58,7 +58,12 @@ const electronHandler = {
             method,
             async (...args: any[]) => await ipcRenderer.invoke(method, args)
         ])),
-    }
+    },
+    project: {
+        saveProject: async (proId: any, data: any) => {
+            await ipcRenderer.invoke('save-project-data', proId, data)
+        }
+    },
 };
 
 contextBridge.exposeInMainWorld("electron", electronHandler);

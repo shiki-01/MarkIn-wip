@@ -1,4 +1,6 @@
 import { app, BrowserWindow, ipcMain, Menu, autoUpdater, dialog } from "electron";
+import fs from 'fs';
+import path from 'path'
 import fsFunctionListener from "./functions/fsFunction";
 import shellFunctionListener from "./functions/shellFunction";
 import testFunctionListener from "./functions/testFunction";
@@ -88,6 +90,24 @@ ipcMain.handle('save-setting', async (event, config) => {
   store.delete("config");
   store.set("config", config);
 })
+
+const projectDataPath = path.join(__dirname, 'ProjectData');
+
+function saveProjectData(projectId: any, data: any) {
+  const filePath = path.join(projectDataPath, `${projectId}.json`);
+
+  const dir = path.dirname(filePath);
+  if (!fs.existsSync(dir)){
+    fs.mkdirSync(dir, { recursive: true });
+  }
+
+  fs.writeFileSync(filePath, JSON.stringify(data));
+}
+
+ipcMain.handle('save-project-data', (event, projectId, data) => {
+  saveProjectData(projectId, data);
+});
+
 
 const createWindow = async () => {
   mainWindow = new BrowserWindow({

@@ -13,6 +13,7 @@ const AddProject = (props: InputProps) => {
     const [projectName, setProjectName] = useState('');
 
     const handleCreate = () => {
+        window.electron.project.saveProject(projectName, {});
         console.log(`Creating project: ${projectName}`);
     };
 
