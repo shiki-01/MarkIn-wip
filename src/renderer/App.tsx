@@ -4,6 +4,7 @@ import Router from "renderer/Router";
 import MenuBar from "renderer/components/MenuBar";
 import Header from "renderer/components/Header";
 import IsSetting from "renderer/components/IsSetting"
+import { ConfigContext } from 'renderer/components/Config';
 import "./style/_global.scss";
 
 type ConfigType = {
@@ -27,17 +28,19 @@ const App = () => {
   }
 
   return (
-    <FluentProvider theme={theme}>
-      <div>
-        <MenuBar />
-      </div>
-      <div className="main">
-        <Header />
-        <IsSetting.Provider value={{ isSetting, setIsSetting }}>
-        <Router />
-        </IsSetting.Provider>
-      </div>
-    </FluentProvider>
+    <ConfigContext.Provider value={config}>
+      <FluentProvider theme={theme}>
+        <div>
+          <MenuBar />
+        </div>
+        <div className="main">
+          <Header />
+          <IsSetting.Provider value={{ isSetting, setIsSetting }}>
+            <Router />
+          </IsSetting.Provider>
+        </div>
+      </FluentProvider>
+    </ConfigContext.Provider>
   );
 };
 

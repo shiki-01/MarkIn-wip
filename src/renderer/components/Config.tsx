@@ -1,7 +1,7 @@
 import React from 'react';
-import { useEffect, useState } from 'react';
 
-const ConfigContext = React.createContext({
-});
+type ConfigType = {
+    theme?: 'dark' | 'light';
+};
 
-export default ConfigContext;
+export const ConfigContext = React.createContext<ConfigType | null>(null);
