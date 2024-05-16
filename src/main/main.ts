@@ -108,6 +108,61 @@ ipcMain.handle('save-project-data', (event, projectId, data) => {
   saveProjectData(projectId, data);
 });
 
+function getProjectDataFiles() {
+  if (!fs.existsSync(projectDataPath)){
+    return [];
+  }
+
+  const folders = fs.readdirSync(projectDataPath).filter(folder => {
+    const folderPath = path.join(projectDataPath, folder);
+    return fs.statSync(folderPath).isDirectory();
+  });
+
+  const files = folders.map(folder => {
+    const folderPath = path.join(projectDataPath, folder);
+    return {
+      folder,
+      files: fs.readdirSync(folderPath)
+    };
+  });
+
+  return files;
+}
+
+ipcMain.handle('get-projects-files', async () => {
+  const files = getProjectDataFiles();
+  return files;
+});
+
+type ItemDetail = {
+  name: string;
+  path: string;
+  isDirectory: boolean;
+  children: ItemDetail[];
+};
+
+const getFolderDetails = (folderPath: string): ItemDetail[] => {
+  const details: ItemDetail[] = fs.readdirSync(folderPath).map(item => {
+    const itemPath = path.join(folderPath, item);
+    const isDirectory = fs.statSync(itemPath).isDirectory();
+
+    return {
+      name: item,
+      path: itemPath,
+      isDirectory,
+      children: isDirectory ? getFolderDetails(itemPath) : []
+    };
+  });
+
+  return details;
+};
+
+ipcMain.handle('get-project-detail', async (event, folderName) => {
+  const folderPath = path.join(projectDataPath, folderName);
+  const details = getFolderDetails(folderPath);
+  return details;
+});
+
 
 const createWindow = async () => {
   mainWindow = new BrowserWindow({

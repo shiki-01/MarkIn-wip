@@ -7,6 +7,7 @@ import IsSetting from "./components/IsSetting";
 import ProjectContext from './components/IsAddProject';
 import AddProject from './pages/AddProject'
 import Header from './components/Header'
+import FolderPage from './pages/FolderPage'
 
 const Router = () => {
   const { isSetting, setIsSetting } = useContext(IsSetting);
@@ -26,9 +27,10 @@ const Router = () => {
     <>
       {isSetting && <Setting />}
       <MemoryRouter>
-      <Header />
+        <Header />
         <Routes>
           <Route path="/" element={<Outlet />}>
+          <Route path="/folder/:folderName" element={<FolderPage />} />
             <Route index element={<IndexPage />} />
             <Route path="function_test" element={<FunctionTestPage />} />
             <Route path="add_project" element={<AddProject />} />

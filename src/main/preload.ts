@@ -62,6 +62,12 @@ const electronHandler = {
     project: {
         saveProject: async (proId: any, data: any) => {
             await ipcRenderer.invoke('save-project-data', proId, data)
+        },
+        getProjects: async () => {
+            return await ipcRenderer.invoke('get-projects-files')
+        },
+        getProjectDetail: async (fileName: any) => {
+            return await ipcRenderer.invoke('get-project-detail', fileName)
         }
     },
 };

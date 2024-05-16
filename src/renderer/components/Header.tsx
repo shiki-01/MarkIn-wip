@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import {
     DrawerBody,
     DrawerHeader,
@@ -17,7 +17,7 @@ import Person from '@mui/icons-material/Person';
 import Settings from '@mui/icons-material/Settings';
 import Home from '@mui/icons-material/Home';
 import Add from '@mui/icons-material/Add';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 
 const useStyles = makeStyles({
@@ -27,6 +27,29 @@ const useStyles = makeStyles({
     },
 });
 
+const renderTree = (nodes: any[]) => {
+    return nodes.map((node, index) => {
+        if (node.isDirectory && node.children) {
+            return (
+                <TreeItem key={index} itemType="branch">
+                    <TreeItemLayout>
+                        {node.name}
+                    </TreeItemLayout>
+                    <Tree>{renderTree(node.children)}</Tree>
+                </TreeItem>
+            );
+        } else {
+            return (
+                <TreeItem key={index} itemType="leaf">
+                    <TreeItemLayout>
+                        {node.name}
+                    </TreeItemLayout>
+                </TreeItem>
+            );
+        }
+    });
+};
+
 type DrawerSeparatorExampleProps = {
     open: boolean;
     setOpen: (open: boolean) => void;
@@ -34,12 +57,47 @@ type DrawerSeparatorExampleProps = {
     className?: string;
 };
 
+type File = {
+    folder: string;
+    file: string;
+};
+
+type Folder = {
+    name: string;
+    path: string;
+    isDirectory: boolean;
+    children: Folder[];
+}
+
 const DrawerSeparatorExample: React.FC<DrawerSeparatorExampleProps> = ({
     open,
     setOpen,
     position,
 }) => {
     const navigate = useNavigate();
+
+    const [files, setFiles] = useState<File[]>([]);
+    useEffect(() => {
+        const fetchFiles = async () => {
+            const result = await window.electron.project.getProjects();
+            setFiles(result);
+        };
+        fetchFiles();
+    }, [files]);
+
+    const location = useLocation();
+    const folderName = location.pathname.split('/')[2];
+    const [folderContents, setFolderContents] = useState<Folder[]>([]);
+
+    useEffect(() => {
+        const fetchDetail = async () => {
+            if (folderName && location.pathname.startsWith('/folder/')) {
+                const result = await window.electron.project.getProjectDetail(folderName);
+                setFolderContents(result);
+            }
+        };
+        fetchDetail();
+    }, [folderName]);
 
     return (
         <InlineDrawer separator position={position} open={open}>
@@ -75,7 +133,8 @@ const DrawerSeparatorExample: React.FC<DrawerSeparatorExampleProps> = ({
                                     <p>Home</p>
                                     <span>
                                         <Add
-                                            onClick={() => {
+                                            onClick={(event) => {
+                                                event.stopPropagation();
                                                 navigate("add_project");
                                             }}
                                         />
@@ -83,10 +142,28 @@ const DrawerSeparatorExample: React.FC<DrawerSeparatorExampleProps> = ({
                                 </span>
                             </TreeItemLayout>
                             <Tree>
+                                {files.map((file, index) => (
+                                    <TreeItem key={index} itemType="leaf">
+                                        <TreeItemLayout
+                                            onClick={() => {
+                                                navigate(`/folder/${file.folder}`)
+                                            }}
+                                        >
+                                            {file.folder}
+                                        </TreeItemLayout>
+                                    </TreeItem>
+                                ))}
                             </Tree>
                         </TreeItem>
                     </Tree>
                 </div>
+                {folderName &&
+                    <div>
+                        <Tree aria-label="Default">
+                            {renderTree(folderContents)}
+                        </Tree>
+                    </div>
+                }
             </DrawerBody>
         </InlineDrawer>
     );
