@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useNavigate } from "react-router-dom";
 import {
     DrawerBody,
     DrawerHeader,
@@ -9,10 +10,15 @@ import {
     DrawerProps,
     Avatar,
 } from "@fluentui/react-components";
+import { Tree, TreeItem, TreeItemLayout } from "@fluentui/react-components";
 import ChevronRight from '@mui/icons-material/ChevronRight';
 import ChevronLeft from '@mui/icons-material/ChevronLeft';
 import Person from '@mui/icons-material/Person';
 import Settings from '@mui/icons-material/Settings';
+import Home from '@mui/icons-material/Home';
+import Add from '@mui/icons-material/Add';
+import { useState } from "react";
+
 
 const useStyles = makeStyles({
     root: {
@@ -33,6 +39,8 @@ const DrawerSeparatorExample: React.FC<DrawerSeparatorExampleProps> = ({
     setOpen,
     position,
 }) => {
+    const navigate = useNavigate();
+
     return (
         <InlineDrawer separator position={position} open={open}>
             <DrawerHeader>
@@ -58,6 +66,27 @@ const DrawerSeparatorExample: React.FC<DrawerSeparatorExampleProps> = ({
                         <Button icon={<Settings />} size="small" appearance="transparent" />
                     </span>
                 </div>
+                <div className="home">
+                    <Tree aria-label="Default">
+                        <TreeItem itemType="branch">
+                            <TreeItemLayout>
+                                <span>
+                                    <Home />
+                                    <p>Home</p>
+                                    <span>
+                                        <Add
+                                            onClick={() => {
+                                                navigate("add_project");
+                                            }}
+                                        />
+                                    </span>
+                                </span>
+                            </TreeItemLayout>
+                            <Tree>
+                            </Tree>
+                        </TreeItem>
+                    </Tree>
+                </div>
             </DrawerBody>
         </InlineDrawer>
     );
@@ -66,7 +95,7 @@ const DrawerSeparatorExample: React.FC<DrawerSeparatorExampleProps> = ({
 const Header = () => {
     const styles = useStyles();
 
-    const [leftOpen, setLeftOpen] = React.useState(true);
+    const [leftOpen, setLeftOpen] = useState(true);
 
     return (
         <div className={`${leftOpen ? "toggle-wrap open" : "toggle-wrap"} ${styles.root}`} style={{ borderBottomWidth: 0 }}>

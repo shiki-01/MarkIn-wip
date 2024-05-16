@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { DrawerProps } from "@fluentui/react-components";
 import IsSetting from "../components/IsSetting"
+import { ConfigContext } from 'renderer/components/Config';
 import {
     NavDrawer,
     NavDrawerBody,
@@ -38,13 +39,9 @@ const Setting = () => {
     const styles = useStyles();
     const [type, setType] = React.useState<DrawerType>("inline");
 
-    const [config, setConfig] = useState<ConfigType | null>(null);
-    useEffect(() => {
-        window.electron.getSetting().then((config: React.SetStateAction<ConfigType | null>) => setConfig(config));
-    }, []);
+    const configContext = useContext(ConfigContext);
+    const isSettingContext = useContext(IsSetting);
 
-
-    const { setIsSetting } = useContext(IsSetting);
     const isOpen = true;
 
     const [selectedTab, setSelectedTab] = useState("1");
@@ -54,7 +51,7 @@ const Setting = () => {
         setSelectedTab(value);
     };
 
-    if (!config) {
+    if (!configContext) {
         return null
     }
 
@@ -123,10 +120,10 @@ const Setting = () => {
                     </NavDrawerFooter>
                 </NavDrawer>
                 <div>
-                    {config ? (
+                    {configContext ? (
                         <>
                             <span className="close">
-                                <Button appearance="transparent" icon={<Close />} onClick={() => setIsSetting(false)} />
+                                <Button appearance="transparent" icon={<Close />} onClick={() => isSettingContext.setIsSetting(false)} />
                             </span>
                             {
                                 selectedTab === "1" &&
@@ -140,11 +137,11 @@ const Setting = () => {
                                 selectedTab === "4" &&
                                 <Field label="テーマ">
                                     <RadioGroup
-                                        defaultValue={config.theme}
+                                        defaultValue={configContext.theme}
                                         onChange={(event: React.FormEvent<HTMLDivElement>, data: any) => {
                                             const value = data.value as "dark" | "light";
-                                            config.theme = value;
-                                            window.electron.window.saveSetting(config);
+                                            configContext.theme = value;
+                                            window.electron.window.saveSetting(configContext);
                                         }}
                                     >
                                         <Radio value="system" label="システム" />

@@ -51,7 +51,6 @@ const electronHandler = {
             await ipcRenderer.invoke('window-minimize');
         },
         saveSetting: async (config: any) => {
-            console.log(config)
             await ipcRenderer.invoke('save-setting', config);
         },
 

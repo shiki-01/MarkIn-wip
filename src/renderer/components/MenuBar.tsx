@@ -63,10 +63,10 @@ const MenuBar = () => {
     }, []);
 
     const renderMenuItems = (items: MenuItem[]) => {
-        return items.map((item) => {
+        return items.map((item, index) => {
             if (item.subitem) {
                 return (
-                    <Menu key={item.label}>
+                    <Menu key={index}>
                         <MenuTrigger disableButtonEnhancement>
                             <MenuItem>{<span>{item.label}</span>}</MenuItem>
                         </MenuTrigger>
@@ -79,13 +79,13 @@ const MenuBar = () => {
                 );
             } else if (item.label === "MenuDivider") {
                 return (
-                    <MenuDivider />
+                    <MenuDivider key={index} />
                 )
             } else {
                 if (item.id) {
                     return (
                         <MenuItem
-                            key={item.label}
+                            key={index}
                             secondaryContent={item.accelerator}
                             onClick={() => {
                                 if (typeof window.electron.window.menu[item.id] === 'function') {
@@ -101,7 +101,7 @@ const MenuBar = () => {
                 } else {
                     return (
                         <MenuItem
-                            key={item.label}
+                            key={index}
                             secondaryContent={item.accelerator}
                         >
                             {item.label}

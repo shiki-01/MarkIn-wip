@@ -4,9 +4,13 @@ import FunctionTestPage from "./pages/FunctionTestPage";
 import IndexPage from "./pages/IndexPage";
 import Setting from "./pages/Setting";
 import IsSetting from "./components/IsSetting";
+import ProjectContext from './components/IsAddProject';
+import AddProject from './pages/AddProject'
+import Header from './components/Header'
 
 const Router = () => {
   const { isSetting, setIsSetting } = useContext(IsSetting);
+  const projectContext = useContext(ProjectContext);
 
   useEffect(() => {
     window.electron.on('set-isSetting', (_: any, value: boolean) => {
@@ -22,10 +26,12 @@ const Router = () => {
     <>
       {isSetting && <Setting />}
       <MemoryRouter>
+      <Header />
         <Routes>
           <Route path="/" element={<Outlet />}>
             <Route index element={<IndexPage />} />
             <Route path="function_test" element={<FunctionTestPage />} />
+            <Route path="add_project" element={<AddProject />} />
           </Route>
         </Routes>
       </MemoryRouter>

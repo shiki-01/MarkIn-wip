@@ -1,8 +1,8 @@
-import React from 'react';
+import { createContext } from 'react';
 
-const AppContext = React.createContext({
-  isSetting: true,
-  setIsSetting: (value: boolean) => {},
-});
+const IsSetting = createContext<{
+  isSetting: boolean,
+  setIsSetting: React.Dispatch<React.SetStateAction<boolean>>
+}>({ isSetting: false, setIsSetting: () => { } });
 
-export default AppContext;
+export default IsSetting;

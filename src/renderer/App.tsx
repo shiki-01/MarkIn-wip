@@ -4,6 +4,7 @@ import Router from "renderer/Router";
 import MenuBar from "renderer/components/MenuBar";
 import Header from "renderer/components/Header";
 import IsSetting from "renderer/components/IsSetting"
+import ProjectContext from 'renderer/components/IsAddProject';
 import { ConfigContext } from 'renderer/components/Config';
 import "./style/_global.scss";
 
@@ -34,9 +35,8 @@ const App = () => {
           <MenuBar />
         </div>
         <div className="main">
-          <Header />
           <IsSetting.Provider value={{ isSetting, setIsSetting }}>
-            <Router />
+              <Router />
           </IsSetting.Provider>
         </div>
       </FluentProvider>
