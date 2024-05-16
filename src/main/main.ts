@@ -94,7 +94,7 @@ ipcMain.handle('save-setting', async (event, config) => {
 const projectDataPath = path.join(__dirname, 'ProjectData');
 
 function saveProjectData(projectId: any, data: any) {
-  const filePath = path.join(projectDataPath, `${projectId}.json`);
+  const filePath = path.join(projectDataPath, projectId, 'data.json');
 
   const dir = path.dirname(filePath);
   if (!fs.existsSync(dir)){
