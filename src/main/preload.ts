@@ -68,7 +68,18 @@ const electronHandler = {
         },
         getProjectDetail: async (fileName: any) => {
             return await ipcRenderer.invoke('get-project-detail', fileName)
-        }
+        },
+        moveFile: async (source: string, destination: string) => {
+            await ipcRenderer.invoke('move-file', source, destination)
+        },
+        create: {
+            folder: async (path: string) => {
+                await ipcRenderer.invoke('create-folder', path)
+            },
+            file: async (path: string) => {
+                await ipcRenderer.invoke('create-file', path)
+            },
+        },
     },
 };
 

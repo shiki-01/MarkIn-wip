@@ -9,7 +9,10 @@ import {
     Button,
     DrawerProps,
     Avatar,
+    Input,
+    Label,
 } from "@fluentui/react-components";
+import type { InputProps } from "@fluentui/react-components";
 import { Tree, TreeItem, TreeItemLayout } from "@fluentui/react-components";
 import ChevronRight from '@mui/icons-material/ChevronRight';
 import ChevronLeft from '@mui/icons-material/ChevronLeft';
@@ -18,6 +21,8 @@ import Settings from '@mui/icons-material/Settings';
 import Home from '@mui/icons-material/Home';
 import Add from '@mui/icons-material/Add';
 import { useEffect, useState } from "react";
+import { useDrag, useDrop } from 'react-dnd';
+
 
 
 const useStyles = makeStyles({
@@ -27,27 +32,53 @@ const useStyles = makeStyles({
     },
 });
 
-const renderTree = (nodes: any[]) => {
-    return nodes.map((node, index) => {
-        if (node.isDirectory && node.children) {
-            return (
-                <TreeItem key={index} itemType="branch">
-                    <TreeItemLayout>
-                        {node.name}
-                    </TreeItemLayout>
-                    <Tree>{renderTree(node.children)}</Tree>
-                </TreeItem>
-            );
-        } else {
-            return (
-                <TreeItem key={index} itemType="leaf">
-                    <TreeItemLayout>
-                        {node.name}
-                    </TreeItemLayout>
-                </TreeItem>
-            );
-        }
+const TreeItemComponent = ({ key, node }: { key: number, node: any }) => {
+    const [{ isDragging }, drag] = useDrag({
+        type: "TREE_ITEM",
+        item: { id: node.id },
+        collect: (monitor) => ({
+            isDragging: !!monitor.isDragging(),
+        }),
     });
+
+    const [{ canDrop, isOver }, drop] = useDrop({
+        accept: "TREE_ITEM",
+        drop: (item, monitor) => {
+            // ドロップ時の処理をここに書く
+            // 例えば、item.idを使用してドラッグされたアイテムを特定し、
+            // node.idを使用してドロップ先を特定します。
+            if (!monitor.didDrop()) {
+                window.electron.project.moveFile("ProjectData/hrh/data.json", "ProjectData/hrh/ge");
+            }
+        },
+        collect: (monitor) => ({
+            isOver: !!monitor.isOver(),
+            canDrop: !!monitor.canDrop(),
+        }),
+    });
+
+    if (node.isDirectory && node.children) {
+        return (
+            <TreeItem key={key} itemType="branch" ref={node => drag(drop(node))}>
+                <TreeItemLayout>
+                    {node.name}
+                </TreeItemLayout>
+                <Tree>{renderTree(node.children)}</Tree>
+            </TreeItem>
+        );
+    } else {
+        return (
+            <TreeItem key={key} itemType="leaf">
+                <TreeItemLayout ref={node => drag(drop(node))}>
+                    {node.name}
+                </TreeItemLayout>
+            </TreeItem>
+        );
+    }
+};
+
+const renderTree = (nodes: any[]) => {
+    return nodes.map((node, index) => <TreeItemComponent key={index} node={node} />);
 };
 
 type DrawerSeparatorExampleProps = {
@@ -89,15 +120,39 @@ const DrawerSeparatorExample: React.FC<DrawerSeparatorExampleProps> = ({
     const folderName = location.pathname.split('/')[2];
     const [folderContents, setFolderContents] = useState<Folder[]>([]);
 
+
+    const fetchDetail = async () => {
+        if (folderName && location.pathname.startsWith('/folder/')) {
+            const result = await window.electron.project.getProjectDetail(folderName);
+            setFolderContents(result);
+        }
+    };
+
     useEffect(() => {
-        const fetchDetail = async () => {
-            if (folderName && location.pathname.startsWith('/folder/')) {
-                const result = await window.electron.project.getProjectDetail(folderName);
-                setFolderContents(result);
-            }
-        };
         fetchDetail();
     }, [folderName]);
+
+    const [isCreatingFile, setIsCreatingFile] = useState(false);
+    const [newFileName, setNewFileName] = useState('');
+
+    const [isCreatingFolder, setIsCreatingFolder] = useState(false);
+    const [newFolderName, setNewFolderName] = useState('');
+
+    const handleNewFileSubmit = (event: { preventDefault: () => void; }) => {
+        event.preventDefault();
+        window.electron.project.create.file(`ProjectData/${folderName}/${newFileName}`);
+        setNewFileName('');
+        setIsCreatingFile(false);
+        fetchDetail();
+    };
+
+    const handleNewFolderSubmit = (event: { preventDefault: () => void; }) => {
+        event.preventDefault();
+        window.electron.project.create.folder(`ProjectData/${folderName}/${newFolderName}`);
+        setNewFolderName('');
+        setIsCreatingFolder(false);
+        fetchDetail();
+    }
 
     return (
         <InlineDrawer separator position={position} open={open}>
@@ -160,7 +215,46 @@ const DrawerSeparatorExample: React.FC<DrawerSeparatorExampleProps> = ({
                 {folderName &&
                     <div>
                         <Tree aria-label="Default">
-                            {renderTree(folderContents)}
+                            <TreeItem itemType="branch">
+                                <TreeItemLayout>
+                                    {folderName}
+                                    <span>
+                                        <Add
+                                            onClick={() => setIsCreatingFile(true)}
+                                        />
+                                    </span>
+                                    <span>
+                                        <Add
+                                            onClick={() => setIsCreatingFolder(true)}
+                                        />
+                                    </span>
+                                </TreeItemLayout>
+                                <Tree>
+                                    {isCreatingFile && (
+                                        <Input
+                                        value={newFileName}
+                                        onChange={(event) => setNewFileName(event.target.value)}
+                                        onKeyDown={(event) => {
+                                          if (event.key === 'Enter') {
+                                            handleNewFileSubmit(event);
+                                          }
+                                        }}
+                                      />
+                                    )}
+                                    {isCreatingFolder && (
+                                        <Input
+                                        value={newFolderName}
+                                        onChange={(event) => setNewFolderName(event.target.value)}
+                                        onKeyDown={(event) => {
+                                          if (event.key === 'Enter') {
+                                            handleNewFolderSubmit(event);
+                                          }
+                                        }}
+                                        />
+                                    )}
+                                    {renderTree(folderContents)}
+                                </Tree>
+                            </TreeItem>
                         </Tree>
                     </div>
                 }

@@ -6,6 +6,8 @@ import Header from "renderer/components/Header";
 import IsSetting from "renderer/components/IsSetting"
 import ProjectContext from 'renderer/components/IsAddProject';
 import { ConfigContext } from 'renderer/components/Config';
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
 import "./style/_global.scss";
 
 type ConfigType = {
@@ -31,6 +33,7 @@ const App = () => {
   return (
     <ConfigContext.Provider value={config}>
       <FluentProvider theme={theme}>
+      <DndProvider backend={HTML5Backend}>
         <div>
           <MenuBar />
         </div>
@@ -39,6 +42,7 @@ const App = () => {
               <Router />
           </IsSetting.Provider>
         </div>
+        </DndProvider>
       </FluentProvider>
     </ConfigContext.Provider>
   );

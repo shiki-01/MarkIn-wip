@@ -163,6 +163,50 @@ ipcMain.handle('get-project-detail', async (event, folderName) => {
   return details;
 });
 
+const moveFileOrDirectory = (sourcePath: string, destinationPath: string): void => {
+  const absoluteSourcePath = path.resolve(__dirname, sourcePath);
+  const absoluteDestinationPath = path.resolve(__dirname, destinationPath);
+
+  try {
+    fs.renameSync(absoluteSourcePath, absoluteDestinationPath);
+  } catch (error) {
+    console.error(`Failed to move file or directory from ${absoluteSourcePath} to ${absoluteDestinationPath}: ${error}`);
+  }
+};
+
+ipcMain.handle('move-file', async (event, source, destination) => {
+  moveFileOrDirectory(source, destination)
+})
+
+const createNewFolder = (folderPath: string): void => {
+  const absoluteFolderPath = path.resolve(__dirname, folderPath);
+
+  try {
+    fs.mkdirSync(absoluteFolderPath);
+  } catch (error) {
+    console.error(`Failed to create new folder at ${absoluteFolderPath}: ${error}`);
+  }
+};
+
+ipcMain.handle('create-folder', async (event, folderPath) => {
+  createNewFolder(folderPath);
+});
+
+// 新しいファイルを作成する関数
+const createNewFile = (filePath: string): void => {
+  const absoluteFilePath = path.resolve(__dirname, filePath);
+
+  try {
+    fs.writeFileSync(absoluteFilePath, '');
+  } catch (error) {
+    console.error(`Failed to create new file at ${absoluteFilePath}: ${error}`);
+  }
+};
+
+ipcMain.handle('create-file', async (event, filePath) => {
+  createNewFile(filePath);
+});
+
 
 const createWindow = async () => {
   mainWindow = new BrowserWindow({
