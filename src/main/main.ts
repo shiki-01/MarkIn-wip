@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain, Menu, autoUpdater, dialog } from "electron";
 import fs from 'fs';
+import fsExtra from 'fs-extra';
 import path from 'path'
 import fsFunctionListener from "./functions/fsFunction";
 import shellFunctionListener from "./functions/shellFunction";
@@ -168,7 +169,7 @@ const moveFileOrDirectory = (sourcePath: string, destinationPath: string): void 
   const absoluteDestinationPath = path.resolve(__dirname, destinationPath);
 
   try {
-    fs.renameSync(absoluteSourcePath, absoluteDestinationPath);
+    fsExtra.moveSync(absoluteSourcePath, absoluteDestinationPath);
   } catch (error) {
     console.error(`Failed to move file or directory from ${absoluteSourcePath} to ${absoluteDestinationPath}: ${error}`);
   }

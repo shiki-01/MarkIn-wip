@@ -24,7 +24,6 @@ import { useEffect, useState } from "react";
 import { useDrag, useDrop } from 'react-dnd';
 
 
-
 const useStyles = makeStyles({
     root: {
         display: "flex",
@@ -32,10 +31,91 @@ const useStyles = makeStyles({
     },
 });
 
-const TreeItemComponent = ({ key, node }: { key: number, node: any }) => {
+const useCreateEntity = (path: any, entityType: 'file' | 'folder') => {
+    const [isCreating, setIsCreating] = useState(false);
+    const [newName, setNewName] = useState('');
+    const { fetchDetail } = useFolderDetails(path, path);
+
+    const handleSubmit = (event: { preventDefault: () => void; }) => {
+        event.preventDefault();
+        const newPath = `ProjectData/${path}/${newName}`.replace(/\\/g, '/');
+        const finalPath = newPath.substring(newPath.toLowerCase().indexOf('projectdata/') + 'projectdata/'.length);
+        window.electron.project.create[entityType](finalPath);
+        fetchDetail();
+        setNewName('');
+        setIsCreating(false);
+    };
+    return { isCreating, setIsCreating, newName, setNewName, handleSubmit };
+};
+
+type CreateEntityInputProps = {
+    path: string;
+    entityType: "file" | "folder";
+};
+
+const CreateEntityInput = ({ path, entityType }: CreateEntityInputProps) => {
+    const { handleSubmit, newName, setNewName } = useCreateEntity(path, entityType);
+
+    return (
+        <Input
+            value={newName}
+            onChange={(event) => setNewName(event.target.value)}
+            onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
+                if (event.key === 'Enter') {
+                    handleSubmit(event);
+                }
+            }}
+        />
+    );
+};
+
+const useFetchFiles = (path: string[]) => {
+    const [files, setFiles] = useState(null);
+
+    const fetchFiles = async () => {
+        const result = await window.electron.project.getProjects();
+        setFiles(result);
+    };
+
+    useEffect(() => {
+        fetchFiles();
+    }, path);
+
+    return { files, fetchFiles };
+};
+
+const useFolderDetails = (folderName: string, path: string) => {
+    const [folderContents, setFolderContents] = useState<Folder[]>([]);
+
+    const fetchDetail = async () => {
+        if (folderName && path.startsWith('/folder/')) {
+            const result = await window.electron.project.getProjectDetail(folderName);
+            setFolderContents(result);
+        }
+    };
+
+    useEffect(() => {
+        fetchDetail();
+    }, [folderName, path]);
+
+    return { folderContents, fetchDetail };
+};
+
+const TreeItemComponent = ({ id, node }: { id: number, node: any }) => {
+
+    type DragItem = {
+        name: string;
+        id: string;
+        path: string;
+    };
+
     const [{ isDragging }, drag] = useDrag({
         type: "TREE_ITEM",
-        item: { id: node.id },
+        item: {
+            name: node.name,
+            id: node.id,
+            path: node.path,
+        } as DragItem,
         collect: (monitor) => ({
             isDragging: !!monitor.isDragging(),
         }),
@@ -43,12 +123,11 @@ const TreeItemComponent = ({ key, node }: { key: number, node: any }) => {
 
     const [{ canDrop, isOver }, drop] = useDrop({
         accept: "TREE_ITEM",
-        drop: (item, monitor) => {
-            // ドロップ時の処理をここに書く
-            // 例えば、item.idを使用してドラッグされたアイテムを特定し、
-            // node.idを使用してドロップ先を特定します。
+        drop: async (item: DragItem, monitor) => {
             if (!monitor.didDrop()) {
-                window.electron.project.moveFile("ProjectData/hrh/data.json", "ProjectData/hrh/ge");
+                await window.electron.project.moveFile(item.path, `${node.path}/${item.name}`);
+                fetchDetail();
+                fetchFiles();
             }
         },
         collect: (monitor) => ({
@@ -57,18 +136,46 @@ const TreeItemComponent = ({ key, node }: { key: number, node: any }) => {
         }),
     });
 
+    const location = useLocation();
+    const folderName = location.pathname.split('/')[2];
+
+    const { folderContents, fetchDetail } = useFolderDetails(folderName, node.path);
+    const { files, fetchFiles } = useFetchFiles([node.path]);
+
+    const [isCreatingFile, setIsCreatingFile] = useState(false);
+
+    const [isCreatingFolder, setIsCreatingFolder] = useState(false);
+
     if (node.isDirectory && node.children) {
         return (
-            <TreeItem key={key} itemType="branch" ref={node => drag(drop(node))}>
+            <TreeItem key={id} itemType="branch" ref={node => drag(drop(node))}>
                 <TreeItemLayout>
                     {node.name}
+                    <span>
+                        <Add
+                            onClick={() => setIsCreatingFile(true)}
+                        />
+                    </span>
+                    <span>
+                        <Add
+                            onClick={() => setIsCreatingFolder(true)}
+                        />
+                    </span>
                 </TreeItemLayout>
-                <Tree>{renderTree(node.children)}</Tree>
+                <Tree>
+                    {isCreatingFile && (
+                        <CreateEntityInput path={node.path} entityType='file' />
+                    )}
+                    {isCreatingFolder && (
+                        <CreateEntityInput path={node.path} entityType='folder' />
+                    )}
+                    {renderTree(node.children)}
+                </Tree>
             </TreeItem>
         );
     } else {
         return (
-            <TreeItem key={key} itemType="leaf">
+            <TreeItem key={id} itemType="leaf">
                 <TreeItemLayout ref={node => drag(drop(node))}>
                     {node.name}
                 </TreeItemLayout>
@@ -78,7 +185,7 @@ const TreeItemComponent = ({ key, node }: { key: number, node: any }) => {
 };
 
 const renderTree = (nodes: any[]) => {
-    return nodes.map((node, index) => <TreeItemComponent key={index} node={node} />);
+    return nodes.map((node, index) => <TreeItemComponent key={node.name + index} id={index} node={node} />);
 };
 
 type DrawerSeparatorExampleProps = {
@@ -107,52 +214,14 @@ const DrawerSeparatorExample: React.FC<DrawerSeparatorExampleProps> = ({
 }) => {
     const navigate = useNavigate();
 
-    const [files, setFiles] = useState<File[]>([]);
-    useEffect(() => {
-        const fetchFiles = async () => {
-            const result = await window.electron.project.getProjects();
-            setFiles(result);
-        };
-        fetchFiles();
-    }, [files]);
-
     const location = useLocation();
     const folderName = location.pathname.split('/')[2];
-    const [folderContents, setFolderContents] = useState<Folder[]>([]);
-
-
-    const fetchDetail = async () => {
-        if (folderName && location.pathname.startsWith('/folder/')) {
-            const result = await window.electron.project.getProjectDetail(folderName);
-            setFolderContents(result);
-        }
-    };
-
-    useEffect(() => {
-        fetchDetail();
-    }, [folderName]);
+    const { folderContents, fetchDetail } = useFolderDetails(folderName, location.pathname);
+    const { files, fetchFiles } = useFetchFiles([folderName]) as unknown as { files: File[], fetchFiles: Function };
 
     const [isCreatingFile, setIsCreatingFile] = useState(false);
-    const [newFileName, setNewFileName] = useState('');
 
     const [isCreatingFolder, setIsCreatingFolder] = useState(false);
-    const [newFolderName, setNewFolderName] = useState('');
-
-    const handleNewFileSubmit = (event: { preventDefault: () => void; }) => {
-        event.preventDefault();
-        window.electron.project.create.file(`ProjectData/${folderName}/${newFileName}`);
-        setNewFileName('');
-        setIsCreatingFile(false);
-        fetchDetail();
-    };
-
-    const handleNewFolderSubmit = (event: { preventDefault: () => void; }) => {
-        event.preventDefault();
-        window.electron.project.create.folder(`ProjectData/${folderName}/${newFolderName}`);
-        setNewFolderName('');
-        setIsCreatingFolder(false);
-        fetchDetail();
-    }
 
     return (
         <InlineDrawer separator position={position} open={open}>
@@ -197,7 +266,7 @@ const DrawerSeparatorExample: React.FC<DrawerSeparatorExampleProps> = ({
                                 </span>
                             </TreeItemLayout>
                             <Tree>
-                                {files.map((file, index) => (
+                                {files?.map((file, index) => (
                                     <TreeItem key={index} itemType="leaf">
                                         <TreeItemLayout
                                             onClick={() => {
@@ -231,26 +300,10 @@ const DrawerSeparatorExample: React.FC<DrawerSeparatorExampleProps> = ({
                                 </TreeItemLayout>
                                 <Tree>
                                     {isCreatingFile && (
-                                        <Input
-                                        value={newFileName}
-                                        onChange={(event) => setNewFileName(event.target.value)}
-                                        onKeyDown={(event) => {
-                                          if (event.key === 'Enter') {
-                                            handleNewFileSubmit(event);
-                                          }
-                                        }}
-                                      />
+                                        <CreateEntityInput path={folderName} entityType='file' />
                                     )}
                                     {isCreatingFolder && (
-                                        <Input
-                                        value={newFolderName}
-                                        onChange={(event) => setNewFolderName(event.target.value)}
-                                        onKeyDown={(event) => {
-                                          if (event.key === 'Enter') {
-                                            handleNewFolderSubmit(event);
-                                          }
-                                        }}
-                                        />
+                                        <CreateEntityInput path={folderName} entityType='folder' />
                                     )}
                                     {renderTree(folderContents)}
                                 </Tree>
