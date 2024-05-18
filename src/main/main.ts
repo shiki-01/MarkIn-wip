@@ -107,6 +107,7 @@ function saveProjectData(projectId: any, data: any) {
 
 ipcMain.handle('save-project-data', (event, projectId, data) => {
   saveProjectData(projectId, data);
+  event.sender.send('folder-operation-completed');
 });
 
 function getProjectDataFiles() {
@@ -177,6 +178,7 @@ const moveFileOrDirectory = (sourcePath: string, destinationPath: string): void 
 
 ipcMain.handle('move-file', async (event, source, destination) => {
   moveFileOrDirectory(source, destination)
+  event.sender.send('folder-operation-completed');
 })
 
 const createNewFolder = (folderPath: string): void => {
@@ -191,6 +193,7 @@ const createNewFolder = (folderPath: string): void => {
 
 ipcMain.handle('create-folder', async (event, folderPath) => {
   createNewFolder(folderPath);
+  event.sender.send('folder-operation-completed');
 });
 
 // 新しいファイルを作成する関数
@@ -206,6 +209,7 @@ const createNewFile = (filePath: string): void => {
 
 ipcMain.handle('create-file', async (event, filePath) => {
   createNewFile(filePath);
+  event.sender.send('folder-operation-completed');
 });
 
 

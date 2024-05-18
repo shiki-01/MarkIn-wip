@@ -11,8 +11,8 @@ import {
     Avatar,
     Input,
     Label,
+    TreeItemValue,
 } from "@fluentui/react-components";
-import type { InputProps } from "@fluentui/react-components";
 import { Tree, TreeItem, TreeItemLayout } from "@fluentui/react-components";
 import ChevronRight from '@mui/icons-material/ChevronRight';
 import ChevronLeft from '@mui/icons-material/ChevronLeft';
@@ -20,7 +20,7 @@ import Person from '@mui/icons-material/Person';
 import Settings from '@mui/icons-material/Settings';
 import Home from '@mui/icons-material/Home';
 import Add from '@mui/icons-material/Add';
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useDrag, useDrop } from 'react-dnd';
 
 
@@ -38,13 +38,24 @@ const useCreateEntity = (path: any, entityType: 'file' | 'folder') => {
 
     const handleSubmit = (event: { preventDefault: () => void; }) => {
         event.preventDefault();
-        const newPath = `ProjectData/${path}/${newName}`.replace(/\\/g, '/');
-        const finalPath = newPath.substring(newPath.toLowerCase().indexOf('projectdata/') + 'projectdata/'.length);
+        const newPath = `${path}/${newName}`.replace(/\\/g, '/');
+        let finalPath;
+
+        if (newPath.toLowerCase().indexOf('projectdata/') !== -1) {
+            finalPath = newPath;
+        } else {
+            finalPath = `projectData/${newPath}`;
+        }
+
         window.electron.project.create[entityType](finalPath);
-        fetchDetail();
         setNewName('');
         setIsCreating(false);
     };
+
+    useEffect(() => {
+        fetchDetail();
+    }, [fetchDetail]);
+
     return { isCreating, setIsCreating, newName, setNewName, handleSubmit };
 };
 
@@ -54,32 +65,47 @@ type CreateEntityInputProps = {
 };
 
 const CreateEntityInput = ({ path, entityType }: CreateEntityInputProps) => {
-    const { handleSubmit, newName, setNewName } = useCreateEntity(path, entityType);
+    const { handleSubmit, newName, setNewName, isCreating, setIsCreating } = useCreateEntity(path, entityType);
 
-    return (
-        <Input
-            value={newName}
-            onChange={(event) => setNewName(event.target.value)}
-            onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
-                if (event.key === 'Enter') {
-                    handleSubmit(event);
-                }
-            }}
-        />
-    );
+    useEffect(() => {
+        setIsCreating(true);
+    }, []);
+
+    if (isCreating) {
+        return (
+            <Input
+                value={newName}
+                onChange={(event) => setNewName(event.target.value)}
+                onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
+                    if (event.key === 'Enter') {
+                        handleSubmit(event);
+                    }
+                }}
+            />
+        );
+    }
 };
 
 const useFetchFiles = (path: string[]) => {
     const [files, setFiles] = useState(null);
 
-    const fetchFiles = async () => {
+    const fetchFiles = useCallback(async () => {
         const result = await window.electron.project.getProjects();
         setFiles(result);
-    };
+    }, []);
 
     useEffect(() => {
         fetchFiles();
-    }, path);
+        const handleFolderOperationCompleted = () => {
+            fetchFiles();
+        };
+
+        window.electron.onFolderOperationCompleted(handleFolderOperationCompleted);
+
+        return () => {
+            window.electron.offFolderOperationCompleted(handleFolderOperationCompleted);
+        };
+    }, []);
 
     return { files, fetchFiles };
 };
@@ -87,21 +113,32 @@ const useFetchFiles = (path: string[]) => {
 const useFolderDetails = (folderName: string, path: string) => {
     const [folderContents, setFolderContents] = useState<Folder[]>([]);
 
-    const fetchDetail = async () => {
+    const fetchDetail = useCallback(async () => {
         if (folderName && path.startsWith('/folder/')) {
             const result = await window.electron.project.getProjectDetail(folderName);
             setFolderContents(result);
         }
-    };
+    }, [folderName, path]);
 
     useEffect(() => {
         fetchDetail();
+        const handleFolderOperationCompleted = () => {
+            fetchDetail();
+        };
+
+        window.electron.onFolderOperationCompleted(handleFolderOperationCompleted);
+
+        return () => {
+            window.electron.offFolderOperationCompleted(handleFolderOperationCompleted);
+        };
     }, [folderName, path]);
 
     return { folderContents, fetchDetail };
 };
 
 const TreeItemComponent = ({ id, node }: { id: number, node: any }) => {
+
+    const { fetchDetail } = useFolderDetails(node.name, node.path);
 
     type DragItem = {
         name: string;
@@ -123,11 +160,25 @@ const TreeItemComponent = ({ id, node }: { id: number, node: any }) => {
 
     const [{ canDrop, isOver }, drop] = useDrop({
         accept: "TREE_ITEM",
-        drop: async (item: DragItem, monitor) => {
+        drop: (item: DragItem, monitor) => {
+            console.log(node.path);
+            console.log(item.path);
+            if (item.path === `${node.path}`) {
+                return;
+            }
             if (!monitor.didDrop()) {
-                await window.electron.project.moveFile(item.path, `${node.path}/${item.name}`);
-                fetchDetail();
-                fetchFiles();
+                // ドロップ先がフォルダかファイルかを判断
+            const isDropTargetDirectory = node.isDirectory;
+            let newPath = `${node.path}/${item.name}`;
+
+            // ドロップ先がファイルの場合、最後のファイル名を削除
+            if (!isDropTargetDirectory) {
+                const pathSegments = node.path.split('\\');
+                pathSegments.pop();  // 最後のセグメント（ファイル名）を削除
+                newPath = `${pathSegments.join('\\')}/${item.name}`;
+            }
+            window.electron.project.moveFile(item.path, newPath);
+                console.log(item.path, `${node.path}/${item.name}`);
             }
         },
         collect: (monitor) => ({
@@ -138,9 +189,6 @@ const TreeItemComponent = ({ id, node }: { id: number, node: any }) => {
 
     const location = useLocation();
     const folderName = location.pathname.split('/')[2];
-
-    const { folderContents, fetchDetail } = useFolderDetails(folderName, node.path);
-    const { files, fetchFiles } = useFetchFiles([node.path]);
 
     const [isCreatingFile, setIsCreatingFile] = useState(false);
 
@@ -214,14 +262,29 @@ const DrawerSeparatorExample: React.FC<DrawerSeparatorExampleProps> = ({
 }) => {
     const navigate = useNavigate();
 
+    const handleClose = useCallback(() => {
+        setOpen(false);
+    }, []);
+
     const location = useLocation();
     const folderName = location.pathname.split('/')[2];
     const { folderContents, fetchDetail } = useFolderDetails(folderName, location.pathname);
     const { files, fetchFiles } = useFetchFiles([folderName]) as unknown as { files: File[], fetchFiles: Function };
 
-    const [isCreatingFile, setIsCreatingFile] = useState(false);
+    useEffect(() => {
+        const handleFolderOperationCompleted = () => {
+            fetchDetail();
+            fetchFiles();
+        };
 
-    const [isCreatingFolder, setIsCreatingFolder] = useState(false);
+        window.electron.onFolderOperationCompleted(handleFolderOperationCompleted);
+
+        return () => {
+            window.electron.offFolderOperationCompleted(handleFolderOperationCompleted);
+        };
+    }, []);
+
+    //TODO: フォルダの開閉の保存
 
     return (
         <InlineDrawer separator position={position} open={open}>
@@ -232,7 +295,7 @@ const DrawerSeparatorExample: React.FC<DrawerSeparatorExampleProps> = ({
                             appearance="subtle"
                             aria-label="Close"
                             icon={<ChevronLeft />}
-                            onClick={() => setOpen(false)}
+                            onClick={() => handleClose()}
                         />
                     }
                 >
@@ -249,7 +312,9 @@ const DrawerSeparatorExample: React.FC<DrawerSeparatorExampleProps> = ({
                     </span>
                 </div>
                 <div className="home">
-                    <Tree aria-label="Default">
+                    <Tree
+                        aria-label="Default"
+                    >
                         <TreeItem itemType="branch">
                             <TreeItemLayout>
                                 <span>
@@ -282,34 +347,9 @@ const DrawerSeparatorExample: React.FC<DrawerSeparatorExampleProps> = ({
                     </Tree>
                 </div>
                 {folderName &&
-                    <div>
-                        <Tree aria-label="Default">
-                            <TreeItem itemType="branch">
-                                <TreeItemLayout>
-                                    {folderName}
-                                    <span>
-                                        <Add
-                                            onClick={() => setIsCreatingFile(true)}
-                                        />
-                                    </span>
-                                    <span>
-                                        <Add
-                                            onClick={() => setIsCreatingFolder(true)}
-                                        />
-                                    </span>
-                                </TreeItemLayout>
-                                <Tree>
-                                    {isCreatingFile && (
-                                        <CreateEntityInput path={folderName} entityType='file' />
-                                    )}
-                                    {isCreatingFolder && (
-                                        <CreateEntityInput path={folderName} entityType='folder' />
-                                    )}
-                                    {renderTree(folderContents)}
-                                </Tree>
-                            </TreeItem>
-                        </Tree>
-                    </div>
+                    <Tree aria-label="Default">
+                        <TreeItemComponent id={0} node={{ name: folderName, path: `projectData/${folderName}`, isDirectory: true, children: folderContents }} />
+                    </Tree>
                 }
             </DrawerBody>
         </InlineDrawer>
@@ -321,6 +361,10 @@ const Header = () => {
 
     const [leftOpen, setLeftOpen] = useState(true);
 
+    const toggleLeftOpen = () => {
+        setLeftOpen(prevState => !prevState);
+    };
+
     return (
         <div className={`${leftOpen ? "toggle-wrap open" : "toggle-wrap"} ${styles.root}`} style={{ borderBottomWidth: 0 }}>
             <DrawerSeparatorExample
@@ -329,7 +373,7 @@ const Header = () => {
                 position="start"
             />
             <div className={leftOpen ? "toggle-opener open" : "toggle-opener"}>
-                <Button icon={<ChevronRight />} appearance="subtle" size="large" onClick={() => setLeftOpen(!leftOpen)} />
+                <Button icon={<ChevronRight />} appearance="subtle" size="large" onClick={() => toggleLeftOpen()} />
             </div>
         </div>
     );

@@ -14,6 +14,12 @@ const electronHandler = {
     removeListener: (channel: string, callback: (event: Electron.IpcRendererEvent, ...args: any[]) => void) => {
         ipcRenderer.removeListener(channel, callback);
     },
+    onFolderOperationCompleted: (callback: () => void) => {
+        ipcRenderer.on('folder-operation-completed', callback);
+    },
+    offFolderOperationCompleted: (callback: () => void) => {
+        ipcRenderer.off('folder-operation-completed', callback);
+    },
     test: {
         sendTest: (testMsg: string) => {
             ipcRenderer.send("test-msg", [testMsg]);
