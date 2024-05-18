@@ -28,6 +28,7 @@ body {
 }
 
 .main {
+  //TODO: そもそもヘッダーに入れりゃよくね
   display: grid;
   grid-template-columns: 40px 1fr;
   gap: 20px;
