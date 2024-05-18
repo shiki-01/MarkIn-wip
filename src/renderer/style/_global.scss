@@ -74,6 +74,56 @@ body {
     }
   }
 
+  .folder {
+    margin-top: 10px;
+    display: grid;
+    max-height: 400px;
+    overflow: auto;
+
+    &::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #888;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+
+    .fol {
+      align-items: center;
+
+      div {
+        display: grid;
+        grid-template-columns: 40px 1fr;
+
+        div {
+          display: block;
+        }
+      }
+
+      .foll {
+        display: grid;
+        grid-template-columns: 1fr 40px 40px;
+      }
+
+      .add {
+        display: none;
+      }
+
+      &:hover .add {
+        display: flex;
+        align-items: center;
+      }
+    }
+  }
+
   .toggle-opener {
     width: 40px;
     height: 40px;

@@ -30,10 +30,10 @@ const Router = () => {
         <Header />
         <Routes>
           <Route path="/" element={<Outlet />}>
-          <Route path="/folder/:folderName" element={<FolderPage />} />
             <Route index element={<IndexPage />} />
             <Route path="function_test" element={<FunctionTestPage />} />
             <Route path="add_project" element={<AddProject />} />
+            <Route path="folder/*" element={<FolderPage />} />
           </Route>
         </Routes>
       </MemoryRouter>

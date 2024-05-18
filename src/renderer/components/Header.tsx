@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useNavigate, Link, useLocation } from "react-router-dom";
+import { useNavigate, Link, useLocation, Navigate } from "react-router-dom";
 import {
     DrawerBody,
     DrawerHeader,
@@ -20,7 +20,9 @@ import Person from '@mui/icons-material/Person';
 import Settings from '@mui/icons-material/Settings';
 import Home from '@mui/icons-material/Home';
 import Add from '@mui/icons-material/Add';
-import { useEffect, useState, useCallback } from "react";
+import NoteAddOutlinedIcon from '@mui/icons-material/NoteAddOutlined';
+import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useDrag, useDrop } from 'react-dnd';
 
 
@@ -66,10 +68,24 @@ type CreateEntityInputProps = {
 
 const CreateEntityInput = ({ path, entityType }: CreateEntityInputProps) => {
     const { handleSubmit, newName, setNewName, isCreating, setIsCreating } = useCreateEntity(path, entityType);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         setIsCreating(true);
     }, []);
+
+    useEffect(() => {
+        const handleClickOutside = (event: { target: any; }) => {
+            if (inputRef.current && !inputRef.current.contains(event.target)) {
+                setIsCreating(false);  // Always hide the input when clicking outside, regardless of the newName value
+            }
+        }
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [setIsCreating]);
 
     if (isCreating) {
         return (
@@ -138,7 +154,7 @@ const useFolderDetails = (folderName: string, path: string) => {
 
 const TreeItemComponent = ({ id, node }: { id: number, node: any }) => {
 
-    const { fetchDetail } = useFolderDetails(node.name, node.path);
+    const navigate = useNavigate();
 
     type DragItem = {
         name: string;
@@ -161,24 +177,19 @@ const TreeItemComponent = ({ id, node }: { id: number, node: any }) => {
     const [{ canDrop, isOver }, drop] = useDrop({
         accept: "TREE_ITEM",
         drop: (item: DragItem, monitor) => {
-            console.log(node.path);
-            console.log(item.path);
             if (item.path === `${node.path}`) {
                 return;
             }
             if (!monitor.didDrop()) {
-                // ドロップ先がフォルダかファイルかを判断
-            const isDropTargetDirectory = node.isDirectory;
-            let newPath = `${node.path}/${item.name}`;
+                const isDropTargetDirectory = node.isDirectory;
+                let newPath = `${node.path}/${item.name}`;
 
-            // ドロップ先がファイルの場合、最後のファイル名を削除
-            if (!isDropTargetDirectory) {
-                const pathSegments = node.path.split('\\');
-                pathSegments.pop();  // 最後のセグメント（ファイル名）を削除
-                newPath = `${pathSegments.join('\\')}/${item.name}`;
-            }
-            window.electron.project.moveFile(item.path, newPath);
-                console.log(item.path, `${node.path}/${item.name}`);
+                if (!isDropTargetDirectory) {
+                    const pathSegments = node.path.split('\\');
+                    pathSegments.pop();
+                    newPath = `${pathSegments.join('\\')}/${item.name}`;
+                }
+                window.electron.project.moveFile(item.path, newPath);
             }
         },
         collect: (monitor) => ({
@@ -195,21 +206,26 @@ const TreeItemComponent = ({ id, node }: { id: number, node: any }) => {
     const [isCreatingFolder, setIsCreatingFolder] = useState(false);
 
     if (node.isDirectory && node.children) {
+        //TODO: 同名のファイルがある場合の処理
         return (
             <TreeItem key={id} itemType="branch" ref={node => drag(drop(node))}>
-                <TreeItemLayout>
-                    {node.name}
-                    <span>
-                        <Add
-                            onClick={() => setIsCreatingFile(true)}
-                        />
-                    </span>
-                    <span>
-                        <Add
-                            onClick={() => setIsCreatingFolder(true)}
-                        />
-                    </span>
-                </TreeItemLayout>
+                <div className="fol">
+                    <TreeItemLayout>
+                        <div className="foll">
+                            <p>{node.name}</p>
+                            <span className="add">
+                                <NoteAddOutlinedIcon
+                                    onClick={() => setIsCreatingFile(true)}
+                                />
+                            </span>
+                            <span className="add">
+                                <CreateNewFolderOutlinedIcon
+                                    onClick={() => setIsCreatingFolder(true)}
+                                />
+                            </span>
+                        </div>
+                    </TreeItemLayout>
+                </div>
                 <Tree>
                     {isCreatingFile && (
                         <CreateEntityInput path={node.path} entityType='file' />
@@ -224,7 +240,15 @@ const TreeItemComponent = ({ id, node }: { id: number, node: any }) => {
     } else {
         return (
             <TreeItem key={id} itemType="leaf">
-                <TreeItemLayout ref={node => drag(drop(node))}>
+                <TreeItemLayout
+                    ref={node => drag(drop(node))}
+                    onClick={() => {
+                        const normalizedPath = node.path.replace(/\\/g, '/');
+                        const parts = normalizedPath.split(`${folderName}`);
+                        const relativePath = parts.length > 1 ? parts.slice(1).join(`${folderName}`) : '';
+                        navigate(`/folder/${folderName}${relativePath}`);
+                    }}
+                >
                     {node.name}
                 </TreeItemLayout>
             </TreeItem>
@@ -347,9 +371,11 @@ const DrawerSeparatorExample: React.FC<DrawerSeparatorExampleProps> = ({
                     </Tree>
                 </div>
                 {folderName &&
-                    <Tree aria-label="Default">
-                        <TreeItemComponent id={0} node={{ name: folderName, path: `projectData/${folderName}`, isDirectory: true, children: folderContents }} />
-                    </Tree>
+                    <div className="folder">
+                        <Tree aria-label="Default">
+                            <TreeItemComponent id={0} node={{ name: folderName, path: `projectData/${folderName}`, isDirectory: true, children: folderContents }} />
+                        </Tree>
+                    </div>
                 }
             </DrawerBody>
         </InlineDrawer>

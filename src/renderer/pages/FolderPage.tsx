@@ -1,16 +1,16 @@
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 const FolderPage = () => {
-    const { folderName } = useParams();
+    const params = useParams();
+    const path = params['*'] || '';
 
-    // Fetch folder details using `folderName` here
+    // Fetch folder details using `pathSegments` here
 
     return (
         <div>
-            <h1>{folderName}</h1>
-            {/* Display folder details here */}
         </div>
     );
-};
+}
 
 export default FolderPage;
