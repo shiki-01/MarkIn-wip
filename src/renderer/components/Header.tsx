@@ -99,6 +99,8 @@ const CreateEntityInput = ({ path, entityType }: CreateEntityInputProps) => {
                 }}
             />
         );
+    } else {
+        return null;
     }
 };
 
