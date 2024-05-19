@@ -8,7 +8,7 @@ const IndexPage = () => {
       <h1>IndexPage</h1>
       <button
         onClick={() => {
-          navigate("function_test");
+          navigate("folder/test/test.md");
         }}
       >
         機能テストページへ

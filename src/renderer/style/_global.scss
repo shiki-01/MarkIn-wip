@@ -28,6 +28,7 @@ body {
 }
 
 .main {
+  //TODO: そもそもヘッダーに入れりゃよくね
   display: grid;
   grid-template-columns: 40px 1fr;
   gap: 20px;
@@ -182,5 +183,48 @@ body {
     position: absolute;
     top: 0;
     right: 0;
+  }
+}
+
+.container {
+  display: flex;
+  padding: 20px;
+  gap: 20px;
+  height: calc(100% - 40px - 20px - 20px * 2);
+  position: relative;
+
+  .gutter {
+    width: 2px;
+    background-color: #6366F1;
+    cursor: col-resize;
+    border-width: 2px;
+  }
+
+  .rich {
+    display: grid;
+    grid-template-rows: 48px 1fr;
+
+    .dEditor {
+      padding: 10px;
+      border: 1px solid #ccc;
+      overflow: auto;
+
+      .DraftEditor-root {
+        height: calc(100% - 20px);
+      }
+    }
+  }
+
+  .markdown {
+    width: calc(100% - 20px);
+
+    .mEditor {
+      width: calc(100% - 20px);
+      height: calc(100% - 20px);
+      border: 1px solid #ccc;
+      padding: 10px;
+      resize: none;
+      overflow: auto;
+    }
   }
 }

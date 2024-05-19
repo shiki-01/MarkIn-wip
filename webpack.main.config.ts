@@ -10,7 +10,22 @@ export const mainConfig: Configuration = {
   entry: "./src/main/main.ts",
   // Put your normal webpack config below here
   module: {
-    rules,
+    rules: [
+      // ...
+      {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+      },
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader'],
+      },
+      {
+        test: /\.scss$/,
+        use: ['style-loader', 'css-loader', 'sass-loader'],
+      },
+    ],
   },
   resolve: {
     extensions: [".js", ".ts", ".jsx", ".tsx", ".css", ".json"],

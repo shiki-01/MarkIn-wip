@@ -3,6 +3,7 @@ import {
     ipcRenderer,
     BrowserWindow,
 } from "electron";
+import { read } from "original-fs";
 
 const menuMethods = ['log', 'open-settings'];
 
@@ -85,6 +86,12 @@ const electronHandler = {
             file: async (path: string) => {
                 await ipcRenderer.invoke('create-file', path)
             },
+        },
+        saveFile: async (filePath: string, data: any) => {
+            await ipcRenderer.invoke('save-file', filePath, data)
+        },
+        getFile: async (filePath: string) => {
+            return await ipcRenderer.invoke('get-file', filePath)
         },
     },
 };
