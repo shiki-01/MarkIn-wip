@@ -1,4 +1,5 @@
 import { app, BrowserWindow, ipcMain, Menu, autoUpdater, dialog } from "electron";
+import { exec } from "child_process";
 import fs from 'fs';
 import fsExtra from 'fs-extra';
 import path from 'path'
@@ -134,6 +135,18 @@ function getProjectDataFiles() {
 ipcMain.handle('get-projects-files', async () => {
   const files = getProjectDataFiles();
   return files;
+});
+
+ipcMain.handle('get-file', async (event, filePath) => {
+  filePath = path.join(__dirname, filePath);
+  const data = fs.readFileSync(filePath, 'utf8');
+  return data;
+});
+
+ipcMain.handle('save-file', (event, filePath, data) => {
+  filePath = path.join(__dirname, filePath);
+  fs.writeFileSync(filePath, data, 'utf8');
+  event.sender.send('file-operation-completed');
 });
 
 type ItemDetail = {

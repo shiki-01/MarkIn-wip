@@ -1,60 +1,112 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Remarkable } from 'remarkable';
+import { Editor, EditorState, RichUtils, convertToRaw, convertFromRaw } from 'draft-js';
+import draftToHtml from 'draftjs-to-html';
+import { ResizableBox } from 'react-resizable';
+import Split from 'react-split';
+import htmlToDraft from 'html-to-draftjs';
+import 'draft-js/dist/Draft.css';
+import { stateFromHTML } from 'draft-js-import-html';
 import TurndownService from 'turndown';
-import { Textarea } from "@fluentui/react-components";
+import { marked } from 'marked';
+import WithTooltip from './Tools';
+import hljs from 'highlight.js/lib/core';
+import markdown from 'highlight.js/lib/languages/markdown';
+import 'highlight.js/styles/github.css';
 
-const md = new Remarkable();
+hljs.registerLanguage('markdown', markdown);
+
 const turndownService = new TurndownService();
 
-export const Editor = () => {
-    const [text, setText] = useState('');
-    const [isTextareaFocused, setTextareaFocused] = useState(false);
-    const outputRef = useRef<HTMLDivElement>(null);
+const EditorComponent = ({path}: {path: string}) => {
+  const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
+  const [markdown, setMarkdown] = useState('');
 
-    const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setText(event.target.value);
-    };
+  useEffect(() => {
+    window.electron.project.getFile(`ProjectData/${path}`).then(async (data: string) => {
+      setMarkdown(data);
+      const html = await marked(data);
+      const contentState = stateFromHTML(html);
+      setEditorState(EditorState.createWithContent(contentState));
+    });
+  }, [path]);
 
-    useEffect(() => {
-        if (outputRef.current && !isTextareaFocused) {
-            outputRef.current.innerHTML = md.render(text);
-        }
-    }, [text, isTextareaFocused]);
+  const saveFile = () => {
+    window.electron.project.saveFile(`ProjectData/${path}`, markdown);
+  }
 
-    useEffect(() => {
-        const observer = new MutationObserver(handleOutputChange);
-        if (outputRef.current) {
-            observer.observe(outputRef.current, { childList: true, characterData: true, subtree: true });
-        }
-        return () => observer.disconnect();
-    }, []);
+  const handleEditorChange = (state: EditorState) => {
+    setEditorState(state);
+    const html = draftToHtml(convertToRaw(state.getCurrentContent()));
+    const markdown = turndownService.turndown(html);
+    setMarkdown(markdown);
+  };
 
-    const handleOutputChange = () => {
-        if (outputRef.current && !isTextareaFocused) {
-            const html = outputRef.current.innerHTML;
-            const markdown = turndownService.turndown(html);
-            setText(markdown);
-        }
-    };
+  const handleTextareaChange = async (value: string) => {
+    setMarkdown(value);
+    const html = await marked(value);
+    const contentState = stateFromHTML(html);
+    setEditorState(EditorState.createWithContent(contentState));
+  }
 
-    return (
-        <div className="container">
-            <Textarea
-                title='Markdown Editor'
-                className="input"
-                onChange={handleChange}
-                value={text}
-                onFocus={() => setTextareaFocused(true)}
-                onBlur={() => setTextareaFocused(false)}
-            />
-            <div
-                className="output"
-                ref={outputRef}
-                contentEditable
-                style={{border: 'none', resize: 'none', overflow: 'auto', whiteSpace: 'pre-wrap'}}
-            />
+  const handleKeyCommand = (command: string, state: EditorState) => {
+    const newState = RichUtils.handleKeyCommand(state, command);
+    if (newState) {
+      handleEditorChange(newState);
+      return 'handled';
+    }
+    return 'not-handled';
+  }
+
+  const toggleBold = () => {
+    handleEditorChange(RichUtils.toggleInlineStyle(editorState, 'BOLD'));
+  }
+
+  const toggleHeader = () => {
+    handleEditorChange(RichUtils.toggleBlockType(editorState, 'header-one'));
+  }
+
+  const [width, setWidth] = useState(200);
+  const [handlePosition, setHandlePosition] = useState(width + 30);
+
+  const handleResize = (_event: any, { size }: any) => {
+    setWidth(size.width);
+    setHandlePosition((size.width) + 30);
+  };
+
+  return (
+      <Split
+        className='container'
+        gutter={() => {
+          const gutterElement = document.createElement("div");
+          gutterElement.className = "gutter";
+          return gutterElement;
+        }}
+        gutterStyle={() => ({})}
+        sizes={[50, 50]}
+        minSize={200}
+        maxSize={1000}
+      >
+        <div className='markdown'>
+          <button onClick={saveFile}>Save</button>
+          <textarea className="mEditor" title='Markdown Editor' data-language='markdown' value={markdown} onChange={(e) => handleTextareaChange(e.target.value)} />
         </div>
-    );
-}
+        <div className='rich'>
+          <WithTooltip
+            onBoldClick={toggleBold}
+            onItalicClick={() => { }}
+            onUnderlineClick={() => { }}
+            onHighlightClick={() => { }}
+          />
+          <div className='dEditor'>
+            <Editor
+              editorState={editorState}
+              onChange={handleEditorChange}
+              handleKeyCommand={handleKeyCommand}
+            />
+          </div>
+        </div>
+      </Split>
+  );
+};
 
-export default Editor;
+export default EditorComponent;
