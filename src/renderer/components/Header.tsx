@@ -99,6 +99,8 @@ const CreateEntityInput = ({ path, entityType }: CreateEntityInputProps) => {
                 }}
             />
         );
+    } else {
+        return null;
     }
 };
 
@@ -286,6 +288,14 @@ const DrawerSeparatorExample: React.FC<DrawerSeparatorExampleProps> = ({
 }) => {
     const navigate = useNavigate();
 
+    const [userData, setUserData] = useState(null);
+
+    useEffect(() => {
+        window.electron.git.account.get().then((data: React.SetStateAction<null>) => {
+            setUserData(data);
+        });
+    }, []);
+
     const handleClose = useCallback(() => {
         setOpen(false);
     }, []);
@@ -329,11 +339,37 @@ const DrawerSeparatorExample: React.FC<DrawerSeparatorExampleProps> = ({
 
             <DrawerBody>
                 <div className="person">
-                    <Avatar icon={<Person />} aria-label="Guest" />
-                    <p>Guest</p>
-                    <span className="setting">
-                        <Button icon={<Settings />} size="small" appearance="transparent" />
-                    </span>
+                    {userData ? (
+                        <>
+                            <Avatar image={{ src: userData.avatar_url }} aria-label="Guest" />
+                            <p>{userData.name}</p>
+                            <span className="setting">
+                                <Button
+                                    icon={<Settings />}
+                                    size="small"
+                                    appearance="transparent"
+                                    onClick={() => {
+                                        navigate("account");
+                                    }}
+                                />
+                            </span>
+                        </>
+                    ) : (
+                        <>
+                            <Avatar icon={<Person />} aria-label="Guest" />
+                            <p>Guest</p>
+                            <span className="setting">
+                                <Button
+                                    icon={<Settings />}
+                                    size="small"
+                                    appearance="transparent"
+                                    onClick={() => {
+                                        navigate("account");
+                                    }}
+                                />
+                            </span>
+                        </>
+                    )}
                 </div>
                 <div className="home">
                     <Tree

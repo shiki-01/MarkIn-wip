@@ -8,6 +8,7 @@ import ProjectContext from './components/IsAddProject';
 import AddProject from './pages/AddProject'
 import Header from './components/Header'
 import FolderPage from './pages/FolderPage'
+import Acount from './pages/Acount'
 
 const Router = () => {
   const { isSetting, setIsSetting } = useContext(IsSetting);
@@ -31,6 +32,7 @@ const Router = () => {
         <Routes>
           <Route path="/" element={<Outlet />}>
             <Route index element={<IndexPage />} />
+            <Route path="account" element={<Acount />} />
             <Route path="function_test" element={<FunctionTestPage />} />
             <Route path="add_project" element={<AddProject />} />
             <Route path="folder/*" element={<FolderPage />} />

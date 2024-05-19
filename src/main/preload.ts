@@ -47,6 +47,17 @@ const electronHandler = {
             return data;
         },
     },
+    git: {
+        account: {
+            open: async (url: string) => {
+                await ipcRenderer.invoke('open-account', url);
+            },
+            get: async () => {
+                const user = await ipcRenderer.invoke('get-user');
+                return user;
+            },
+        }
+    },
     window: {
         close: async () => {
             await ipcRenderer.invoke('window-close');

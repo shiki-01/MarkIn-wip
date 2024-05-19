@@ -4,6 +4,16 @@
   "version": "1.0.3",
   "description": "My Electron application description",
   "main": ".webpack/main",
+  "build": {
+    "protocols": [
+      {
+        "name": "MarkIn",
+        "schemes": [
+          "markin"
+        ]
+      }
+    ]
+  },
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
@@ -65,6 +75,7 @@
     "@mui/material": "^5.15.17",
     "@mui/styled-engine-sc": "^6.0.0-alpha.18",
     "@types/marked": "^6.0.0",
+    "axios": "^1.6.8",
     "child_process": "^1.0.2",
     "draft-js": "^0.11.7",
     "draft-js-import-html": "^1.4.1",

@@ -1,5 +1,7 @@
-import { app, BrowserWindow, ipcMain, Menu, autoUpdater, dialog } from "electron";
+import { app, BrowserWindow, ipcMain, Menu, autoUpdater, dialog, session } from "electron";
 import { exec } from "child_process";
+import { shell } from "electron";
+import axios from "axios";
 import fs from 'fs';
 import fsExtra from 'fs-extra';
 import path from 'path'
@@ -29,6 +31,56 @@ fsFunctionListener();
 if (require("electron-squirrel-startup")) {
   app.quit();
 }
+
+let userData: null = null;
+
+ipcMain.handle('open-account', async (event, url) => {
+  const win = new BrowserWindow({ width: 800, height: 600, webPreferences: { nodeIntegration: false } })
+
+  win.loadURL(url)
+
+  win.webContents.on('will-redirect', async (event, url) => {
+    const code = new URL(url).searchParams.get('code')
+
+    if (code) {
+
+      try {
+        // 認証コードを使用してアクセストークンを取得します
+        const response = await axios({
+          method: 'post',
+          url: `https://github.com/login/oauth/access_token`,
+          data: {
+            client_id: 'Iv23li81DmrWmEfXtDcS',
+            client_secret: '1e29919006ae1179433b467e22754c2b1d8ea9d9',
+            code: code,
+          },
+          headers: {
+            accept: 'application/json',
+          },
+        })
+
+        const accessToken = response.data.access_token
+
+        // アクセストークンを使用してユーザー情報を取得します
+        const user = await axios({
+          method: 'get',
+          url: `https://api.github.com/user`,
+          headers: {
+            Authorization: `token ${accessToken}`,
+          },
+        })
+
+        userData = user.data;
+        console.log(userData)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    event.preventDefault()
+    win.close()
+  });
+});
 
 ipcMain.handle('get-menu-data', async (event) => {
   const menu = Menu.getApplicationMenu();
@@ -60,11 +112,11 @@ ipcMain.handle('window-close', () => {
 ipcMain.handle('window-maximize', () => {
   const window = BrowserWindow.getFocusedWindow();
   if (window) {
-      if (window.isMaximized()) {
-          window.unmaximize();
-      } else {
-          window.maximize();
-      }
+    if (window.isMaximized()) {
+      window.unmaximize();
+    } else {
+      window.maximize();
+    }
   }
 });
 
@@ -99,7 +151,7 @@ function saveProjectData(projectId: any, data: any) {
   const filePath = path.join(projectDataPath, projectId, 'data.json');
 
   const dir = path.dirname(filePath);
-  if (!fs.existsSync(dir)){
+  if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
 
@@ -112,7 +164,7 @@ ipcMain.handle('save-project-data', (event, projectId, data) => {
 });
 
 function getProjectDataFiles() {
-  if (!fs.existsSync(projectDataPath)){
+  if (!fs.existsSync(projectDataPath)) {
     return [];
   }
 
@@ -262,7 +314,29 @@ const createWindow = async () => {
 
 app.whenReady().then(() => {
   // アプリの起動イベント発火で BrowserWindow インスタンスを作成
+  if (process.defaultApp) {
+    if (process.argv.length >= 2) {
+      app.setAsDefaultProtocolClient('markin', process.execPath, [path.resolve(process.argv[1])])
+    }
+  } else {
+    app.setAsDefaultProtocolClient('markin')
+  }
+
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': ['script-src \'self\' \'unsafe-inline\' data: \'unsafe-eval\';']
+      }
+    });
+  })
+
   createWindow();
+});
+
+ipcMain.handle('get-user', async (event) => {
+  // ユーザーデータを返す
+  return userData;
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
