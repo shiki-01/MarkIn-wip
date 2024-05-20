@@ -73,7 +73,6 @@ ipcMain.handle('open-account', async (event, url) => {
 
           userData = user.data;
           win.close();
-          win = null;
 
         } catch (error) {
           console.error('Error during login:', error);
@@ -282,6 +281,11 @@ ipcMain.handle('create-file', async (event, filePath) => {
 
 
 const createWindow = async () => {
+
+  if (BrowserWindow.getAllWindows().length > 0) {
+    return;
+  }
+
   mainWindow = new BrowserWindow({
     width: 1024,
     height: 728,
