@@ -33,53 +33,56 @@ if (require("electron-squirrel-startup")) {
 }
 
 let userData: null = null;
+let win: Electron.BrowserWindow | null = null;
 
 ipcMain.handle('open-account', async (event, url) => {
-  const win = new BrowserWindow({ width: 800, height: 600, webPreferences: { nodeIntegration: false } })
+  try {
+    win = new BrowserWindow({ width: 800, height: 600, webPreferences: { nodeIntegration: false } })
 
-  win.loadURL(url)
+    win.loadURL(url)
 
-  win.webContents.on('will-redirect', async (event, url) => {
-    const code = new URL(url).searchParams.get('code')
+    win.webContents.on('will-redirect', async (event, url) => {
+      const code = new URL(url).searchParams.get('code')
 
-    if (code) {
+      if (code) {
+        try {
+          // 認証コードを使用してアクセストークンを取得します
+          const response = await axios({
+            method: 'post',
+            url: `https://github.com/login/oauth/access_token`,
+            data: {
+              client_id: 'Iv23li81DmrWmEfXtDcS',
+              client_secret: '1e29919006ae1179433b467e22754c2b1d8ea9d9',
+              code: code,
+            },
+            headers: {
+              accept: 'application/json',
+            },
+          })
 
-      try {
-        // 認証コードを使用してアクセストークンを取得します
-        const response = await axios({
-          method: 'post',
-          url: `https://github.com/login/oauth/access_token`,
-          data: {
-            client_id: 'Iv23li81DmrWmEfXtDcS',
-            client_secret: '1e29919006ae1179433b467e22754c2b1d8ea9d9',
-            code: code,
-          },
-          headers: {
-            accept: 'application/json',
-          },
-        })
+          const accessToken = response.data.access_token
 
-        const accessToken = response.data.access_token
+          // アクセストークンを使用してユーザー情報を取得します
+          const user = await axios({
+            method: 'get',
+            url: 'https://api.github.com/user',
+            headers: {
+              Authorization: `token ${accessToken}`,
+            },
+          })
 
-        // アクセストークンを使用してユーザー情報を取得します
-        const user = await axios({
-          method: 'get',
-          url: `https://api.github.com/user`,
-          headers: {
-            Authorization: `token ${accessToken}`,
-          },
-        })
+          userData = user.data;
+          win.close();
+          win = null;
 
-        userData = user.data;
-        console.log(userData)
-      } catch (error) {
-        console.error(error)
+        } catch (error) {
+          console.error('Error during login:', error);
+        }
       }
-    }
-
-    event.preventDefault()
-    win.close()
-  });
+    });
+  } catch (error) {
+    console.error('Error opening window:', error);
+  }
 });
 
 ipcMain.handle('get-menu-data', async (event) => {
@@ -337,6 +340,10 @@ app.whenReady().then(() => {
 ipcMain.handle('get-user', async (event) => {
   // ユーザーデータを返す
   return userData;
+});
+
+ipcMain.handle('logout', async (event) => {
+  userData = null;
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common

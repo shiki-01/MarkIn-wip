@@ -296,6 +296,12 @@ const DrawerSeparatorExample: React.FC<DrawerSeparatorExampleProps> = ({
         });
     }, []);
 
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        setUser(userData);
+    }, [userData]);
+
     const handleClose = useCallback(() => {
         setOpen(false);
     }, []);
@@ -339,10 +345,10 @@ const DrawerSeparatorExample: React.FC<DrawerSeparatorExampleProps> = ({
 
             <DrawerBody>
                 <div className="person">
-                    {userData ? (
+                    {user ? (
                         <>
-                            <Avatar image={{ src: userData.avatar_url }} aria-label="Guest" />
-                            <p>{userData.name}</p>
+                            <Avatar image={{ src: user.avatar_url }} aria-label="Guest" />
+                            <p>{user.name}</p>
                             <span className="setting">
                                 <Button
                                     icon={<Settings />}

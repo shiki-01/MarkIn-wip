@@ -81,6 +81,7 @@
     "draft-js-import-html": "^1.4.1",
     "draftjs-to-html": "^0.9.1",
     "electron-squirrel-startup": "^1.0.1",
+    "electron-store": "^9.0.0",
     "encoding-japanese": "^2.1.0",
     "fs-extra": "^11.2.0",
     "highlight.js": "^11.9.0",

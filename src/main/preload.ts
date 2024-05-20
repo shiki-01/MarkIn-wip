@@ -56,6 +56,9 @@ const electronHandler = {
                 const user = await ipcRenderer.invoke('get-user');
                 return user;
             },
+            logout: async () => {
+                await ipcRenderer.invoke('logout');
+            },
         }
     },
     window: {
