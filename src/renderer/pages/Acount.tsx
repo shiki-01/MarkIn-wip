@@ -4,6 +4,20 @@ const Acount = () => {
     const [userData, setUserData] = useState(null);
 
     useEffect(() => {
+        const handleUserDataUpdate = (userData: any) => {
+            // userDataが更新されたときに必要な処理をここに書く
+            setUserData(userData);
+        };
+
+        window.electron.git.account.setUserListener(handleUserDataUpdate);
+
+        // コンポーネントがアンマウントされたときにリスナーを削除する
+        return () => {
+            window.electron.git.account.removeUserListener(handleUserDataUpdate);
+        };
+    }, []);
+
+    useEffect(() => {
         const fetchUserData = async () => {
             const data = await window.electron.git.account.get();
             setUserData(data);
@@ -11,14 +25,6 @@ const Acount = () => {
 
         fetchUserData();
     }, []);
-
-    // userDataが変更されたときに呼び出される
-    useEffect(() => {
-        if (userData) {
-            // userDataが更新されたときに必要な処理をここに書く
-            console.log(userData);
-        }
-    }, [userData]);
 
     return (
         <div>

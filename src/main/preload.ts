@@ -3,7 +3,6 @@ import {
     ipcRenderer,
     BrowserWindow,
 } from "electron";
-import { read } from "original-fs";
 
 const menuMethods = ['log', 'open-settings'];
 
@@ -59,6 +58,21 @@ const electronHandler = {
             logout: async () => {
                 await ipcRenderer.invoke('logout');
             },
+            setUserListener: (callback: (userData: any) => void) => {
+                ipcRenderer.on('set-user', (event, userData) => {
+                    callback(userData);
+                });
+            },
+            removeUserListener: (callback: (userData: any) => void) => {
+                ipcRenderer.off('set-user', (event, userData) => {
+                    callback(userData);
+                });
+            },
+        },
+        repo: {
+            init: async (path: string) => {
+                await ipcRenderer.invoke('init-repo', path);
+            }
         }
     },
     window: {

@@ -299,8 +299,19 @@ const DrawerSeparatorExample: React.FC<DrawerSeparatorExampleProps> = ({
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        setUser(userData);
-    }, [userData]);
+        const handleUserDataUpdate = (userData: any) => {
+            // userDataが更新されたときに必要な処理をここに書く
+            setUserData(userData);
+            setUser(userData);
+        };
+
+        window.electron.git.account.setUserListener(handleUserDataUpdate);
+
+        // コンポーネントがアンマウントされたときにリスナーを削除する
+        return () => {
+            window.electron.git.account.removeUserListener(handleUserDataUpdate);
+        };
+    }, []);
 
     const handleClose = useCallback(() => {
         setOpen(false);
