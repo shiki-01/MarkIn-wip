@@ -72,7 +72,22 @@ const electronHandler = {
         repo: {
             init: async (path: string) => {
                 await ipcRenderer.invoke('init-repo', path);
-            }
+            },
+            clone: async (url: string, path: string) => {
+                await ipcRenderer.invoke('clone-repo', url, path);
+            },
+            create: async (path: string) => {
+                await ipcRenderer.invoke('create-repo', path);
+            },
+            add: async (path: string) => {
+                await ipcRenderer.invoke('add-repo', path);
+            },
+            commit: async (path: string, message: string) => {
+                await ipcRenderer.invoke('commit-repo', path, message);
+            },
+            push: async (path: string) => {
+                await ipcRenderer.invoke('push-repo', path);
+            },
         }
     },
     window: {

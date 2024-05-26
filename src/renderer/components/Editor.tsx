@@ -17,7 +17,7 @@ hljs.registerLanguage('markdown', markdown);
 
 const turndownService = new TurndownService();
 
-const EditorComponent = ({path}: {path: string}) => {
+const EditorComponent = ({ path }: { path: string }) => {
   const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
   const [markdown, setMarkdown] = useState('');
 
@@ -73,39 +73,77 @@ const EditorComponent = ({path}: {path: string}) => {
     setHandlePosition((size.width) + 30);
   };
 
+  const repoInit = () => {
+    const directory = path.split('/')[0];
+    window.electron.git.repo.init(directory);
+  }
+
+  const repoClone = () => {
+    const directory = path.split('/')[0];
+    window.electron.git.repo.clone(directory, 'https://github.com/shiki-01/mdn-fes-j2a-site.git');
+  }
+
+  const repoCreate = () => {
+    const directory = path.split('/')[0];
+    window.electron.git.repo.create(directory);
+  }
+
+  const repoAdd = () => {
+    const directory = path.split('/')[0];
+    window.electron.git.repo.add(directory);
+  }
+
+  const repoCommit = () => {
+    const directory = path.split('/')[0];
+    window.electron.git.repo.commit(directory, 'commit');
+  }
+
+  const repoPush = () => {
+    const directory = path.split('/')[0];
+    window.electron.git.repo.push(directory);
+  }
+
   return (
-      <Split
-        className='container'
-        gutter={() => {
-          const gutterElement = document.createElement("div");
-          gutterElement.className = "gutter";
-          return gutterElement;
-        }}
-        gutterStyle={() => ({})}
-        sizes={[50, 50]}
-        minSize={200}
-        maxSize={1000}
-      >
-        <div className='markdown'>
+    <Split
+      className='container'
+      gutter={() => {
+        const gutterElement = document.createElement("div");
+        gutterElement.className = "gutter";
+        return gutterElement;
+      }}
+      gutterStyle={() => ({})}
+      sizes={[50, 50]}
+      minSize={200}
+      maxSize={1000}
+    >
+      <div className='markdown'>
+        <div>
           <button onClick={saveFile}>Save</button>
-          <textarea className="mEditor" title='Markdown Editor' data-language='markdown' value={markdown} onChange={(e) => handleTextareaChange(e.target.value)} />
+          <button onClick={repoInit}>init</button>
+          <button onClick={repoClone}>clone</button>
+          <button onClick={repoCreate}>create</button>
+          <button onClick={repoAdd}>add</button>
+          <button onClick={repoCommit}>commit</button>
+          <button onClick={repoPush}>push</button>
         </div>
-        <div className='rich'>
-          <WithTooltip
-            onBoldClick={toggleBold}
-            onItalicClick={() => { }}
-            onUnderlineClick={() => { }}
-            onHighlightClick={() => { }}
+        <textarea className="mEditor" title='Markdown Editor' data-language='markdown' value={markdown} onChange={(e) => handleTextareaChange(e.target.value)} />
+      </div>
+      <div className='rich'>
+        <WithTooltip
+          onBoldClick={toggleBold}
+          onItalicClick={() => { }}
+          onUnderlineClick={() => { }}
+          onHighlightClick={() => { }}
+        />
+        <div className='dEditor'>
+          <Editor
+            editorState={editorState}
+            onChange={handleEditorChange}
+            handleKeyCommand={handleKeyCommand}
           />
-          <div className='dEditor'>
-            <Editor
-              editorState={editorState}
-              onChange={handleEditorChange}
-              handleKeyCommand={handleKeyCommand}
-            />
-          </div>
         </div>
-      </Split>
+      </div>
+    </Split>
   );
 };
 
