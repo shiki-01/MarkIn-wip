@@ -1,24 +1,36 @@
-# MarkIn
+<p align="center">
+  <img src="static/sveltekit-electron.svg" />
+</p>
 
-## 概要
+# Sveltekit + Electron
 
-~~MarkInはElectronを使用したデスクトップアプリケーションです。このアプリケーションは、開発者が自分自身のアプリケーションを作成するためのスターターキットとして使用することを目的としています。~~
+Minimal [Sveltekit](https://github.com/sveltejs/kit#readme) + [Electron](https://www.electronjs.org/) starter template.
 
-## 特徴
+<br />
 
-- Electronを使用したクロスプラットフォームのデスクトップアプリケーション
-- TypeScriptで書かれています
-- ReactとFluent UIを使用したモダンなUI
+## Getting Started
 
-## 開発環境のセットアップ
+Unfortunately you must use `npm` as there are issues that arise when using `pnpm` or `yarn`
 
-1. リポジトリをクローンします：
+|         |                                             |
+| ------- | ------------------------------------------- |
+| Clone   | · `npx degit fractalhq/sveltekit-electron ` |
+| Install | · `npm install`                             |
+| Develop | · `npm run dev`                             |
+| Build   | · `npm run build`                           |
 
-```sh
-git clone https://github.com/shiki-01/MarkIN.git
-```
+In order to eliminate vulnerabilities caused by electron itself, please run `npm update` and `npm audit fix`. This will apply overrides.
 
-2. 依存関係をインストールします
-2. アプリケーションを起動します：
-2. ライセンス
-2. このプロジェクトはMITライセンスの下で公開されています。詳細はLICENSEを参照してください。
+<br />
+
+<p align="center">
+  <img src="screenshot.png" />
+</p>
+
+## Recommended IDE Setup
+
+[VSCode](https://code.visualstudio.com/) + [Svelte for VSCode](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode)
+
+## Change Build Targets
+
+In the scripts section of package.json you can update the `build:electron` command and change the flags to set the targets, by default it uses `-mwl` which is Mac, Windows, and Linux
