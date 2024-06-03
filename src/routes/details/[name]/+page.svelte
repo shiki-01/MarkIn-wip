@@ -6,7 +6,6 @@
 
     onMount(() => {
         const { params } = $page;
-
         direName = params.name;
     });
 </script>
