@@ -1,79 +1,28 @@
 <script lang="ts">
-	import { cn } from '$lib/utils/tailwind';
-	import { createAccordion, melt } from '@melt-ui/svelte';
-	import { slide } from 'svelte/transition';
-
-	const {
-		elements: { content, item, trigger, root },
-		helpers: { isSelected },
-	} = createAccordion({
-		defaultValue: 'item-1',
-	});
-
-	const items = [
-		{
-			id: 'item-1',
-			title: 'What is it?',
-			description:
-				'A collection of accessible & unstyled component builders for Svelte applications.',
-		},
-		{
-			id: 'item-2',
-			title: 'Can I customize it?',
-			description: 'Totally, it is 100% stylable and overridable.',
-		},
-		{
-			id: 'item-3',
-			title: 'Svelte is awesome, huh?',
-			description: 'Yes, and so are you!',
-		},
-	];
-
-	let className = '';
-	export { className as class };
+	import { AccordionItem, Accordion } from 'flowbite-svelte';
 </script>
 
-<div
-	class={cn('mx-auto w-[18rem] max-w-full rounded-xl bg-white shadow-lg sm:w-[25rem]', className)}
-	{...$root}
->
-	{#each items as { id, title, description }, i}
-		<div
-			use:melt={$item(id)}
-			class="overflow-hidden transition-colors first:rounded-t-xl
-			  last:rounded-b-xl"
-		>
-			<h2 class="flex">
-				<button
-					use:melt={$trigger(id)}
-					class={cn(
-						'flex flex-1 cursor-pointer items-center justify-between ',
-						'bg-white px-5 py-5 text-base font-medium leading-none',
-						'text-black transition-colors hover:bg-neutral-100 focus:!ring-0',
-						'focus-visible:text-magnum-800',
-						i !== 0 && 'border-t border-t-neutral-300',
-					)}
-				>
-					{title}
-				</button>
-			</h2>
-			{#if $isSelected(id)}
-				<div
-					class={cn('content', 'overflow-hidden bg-neutral-100 text-sm text-neutral-600')}
-					use:melt={$content(id)}
-					transition:slide
-				>
-					<div class="px-5 py-4">
-						{description}
-					</div>
-				</div>
-			{/if}
-		</div>
-	{/each}
-</div>
-
-<style lang="postcss">
-	.content {
-		box-shadow: inset 0px 1px 0px theme('colors.neutral.300');
-	}
-</style>
+<Accordion>
+	<AccordionItem>
+	  <span slot="header">My Header 1</span>
+	  <p class="mb-2 text-gray-500 dark:text-gray-400">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illo ab necessitatibus sint explicabo ...</p>
+	  <p class="text-gray-500 dark:text-gray-400">
+		Check out this guide to learn how to <a href="/" target="_blank" rel="noreferrer" class="text-blue-600 dark:text-blue-500 hover:underline"> get started </a>
+		and start developing websites even faster with components on top of Tailwind CSS.
+	  </p>
+	</AccordionItem>
+	<AccordionItem>
+	  <span slot="header">My Header 2</span>
+	  <p class="mb-2 text-gray-500 dark:text-gray-400">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illo ab necessitatibus sint explicabo ...</p>
+	  <p class="mb-2 text-gray-500 dark:text-gray-400">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illo ab necessitatibus sint explicabo ...</p>
+	  <p class="mb-2 text-gray-500 dark:text-gray-400">Learn more about these technologies:</p>
+	  <ul class="list-disc ps-5 dark:text-gray-400 text-gray-500">
+		<li>
+		  <a href="/" target="_blank" rel="noreferrer" class="text-blue-600 dark:text-blue-500 hover:underline"> Lorem ipsum </a>
+		</li>
+		<li>
+		  <a href="https://tailwindui.com/" rel="noreferrer" target="_blank" class="text-blue-600 dark:text-blue-500 hover:underline"> Tailwind UI </a>
+		</li>
+	  </ul>
+	</AccordionItem>
+  </Accordion>
