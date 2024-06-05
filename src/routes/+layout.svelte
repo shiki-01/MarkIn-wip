@@ -1,7 +1,7 @@
 <script lang="ts">
 	import '../app.css';
 	import { onMount } from 'svelte';
-	import * as Resizable from "$lib/components/ui/resizable";
+	import * as Resizable from '$lib/components/ui/resizable';
 	let ready: boolean = false;
 	let data: any;
 	let directoryStructure: any;
@@ -39,17 +39,13 @@
 		ready = true;
 	});
 
-	import {
-		Sidebar,
-		SidebarGroup,
-		SidebarItem,
-		SidebarWrapper,
-		SidebarDropdownItem,
-		SidebarDropdownWrapper,
-	} from 'flowbite-svelte';
-	import { CartSolid, EditOutline } from 'flowbite-svelte-icons';
 	import Icon from '@iconify/svelte';
 	import DirectTree from '$lib/DirectTree.svelte';
+	import { cn } from '$lib/utils';
+
+	export let navCollapsedSize: number;
+	export let defaultCollapsed = false;
+	let isCollapsed = defaultCollapsed;
 
 	const handleCloseWindow = () => {
 		window.electron.window.close();
@@ -62,13 +58,25 @@
 	const handleMinimizeWindow = () => {
 		window.electron.window.minimize();
 	};
+
+	function onLayoutChange(sizes: number[]) {
+		document.cookie = `PaneForge:layout=${JSON.stringify(sizes)}`;
+	}
+
+	function onCollapse() {
+		isCollapsed = true;
+		document.cookie = `PaneForge:collapsed=${true}`;
+	}
+
+	function onExpand() {
+		isCollapsed = false;
+		document.cookie = `PaneForge:collapsed=${false}`;
+	}
 </script>
 
 <div class="main">
-
 	<div class="dragbar">
-		<div class="pl-4 flex gap-4">
-		</div>
+		<div class="pl-4 flex gap-4"></div>
 		<div class="flex justify-end items-center pr-4 gap-4">
 			<button on:click={handleMinimizeWindow}>
 				<Icon icon="material-symbols:chrome-minimize-rounded" class="size-6" />
@@ -82,19 +90,52 @@
 		</div>
 	</div>
 
-	{#if ready}
-		<div class="w-full h-full">
-			<slot />
-		</div>
-	{/if}
+	<Resizable.PaneGroup direction="horizontal" {onLayoutChange}>
+		<Resizable.Pane
+			defaultSize={20}
+			collapsedSize={navCollapsedSize}
+			collapsible
+			minSize={15}
+			maxSize={25}
+			{onCollapse}
+			{onExpand}
+		>
+			<div
+				class={cn(
+					'flex h-[52px] items-center justify-center',
+					isCollapsed ? 'h-[52px]' : 'px-2',
+				)}
+			>
+				<div data-collapsed={isCollapsed} class="group flex flex-col gap-4 py-2 data-[collapsed=true]:py-2">
+					<div class="grid gap-1 px-2 group-[[data-collapsed=true]]:justify-center group-[[data-collapsed=true]]:px-2">
+						{#if isCollapsed}
+							<Icon icon="carbon:menu" class="size-6" />
+						{:else}
+							<Icon icon="carbon:menu" class="size-6" />
+							<Icon icon="carbon:menu" class="size-6" />
+							<Icon icon="carbon:menu" class="size-6" />
+						{/if}
+					</div>
+				</div>
+			</div>
+		</Resizable.Pane>
+		<Resizable.Handle withHandle />
+		<Resizable.Pane defaultSize={75}>
+			{#if ready}
+				<div class="w-full h-full">
+					<slot />
+				</div>
+			{/if}
+		</Resizable.Pane>
+	</Resizable.PaneGroup>
 </div>
 
 <style lang="postcss">
 	.main {
 		display: grid;
-		grid-template-rows: 50px 1fr;
 		height: 100vh;
-		transition: grid-template-columns 0.3s ease-out;
+		width: 100vw;
+		grid-template-rows: 50px 1fr;
 	}
 	.dragbar {
 		-webkit-app-region: drag;
