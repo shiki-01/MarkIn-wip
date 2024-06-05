@@ -1,6 +1,7 @@
 <script lang="ts">
 	import '../app.css';
 	import { onMount } from 'svelte';
+	import * as Resizable from "$lib/components/ui/resizable";
 	let ready: boolean = false;
 	let data: any;
 	let directoryStructure: any;
@@ -50,8 +51,6 @@
 	import Icon from '@iconify/svelte';
 	import DirectTree from '$lib/DirectTree.svelte';
 
-	$: isSidebarVisible = true;
-
 	const handleCloseWindow = () => {
 		window.electron.window.close();
 	};
@@ -65,67 +64,10 @@
 	};
 </script>
 
-<div class="main" style="grid-template-columns: {isSidebarVisible ? '250px 1fr' : '0 1fr'};">
-	<div
-		class="sidebar"
-		style="transform: {isSidebarVisible ? 'translateX(0)' : 'translateX(-100%)'};"
-	>
-		<Sidebar class="h-full">
-			<SidebarWrapper class="h-full">
-				<SidebarGroup>
-					<div class="flex justify-between items-center p-3 pt-0">
-						<button><Icon icon="ic:sharp-menu" class="size-6" /></button>
-						<button
-							on:click={() => {
-								isSidebarVisible = !isSidebarVisible;
-							}}
-						>
-							<Icon
-								icon="material-symbols:arrow-back-ios-new-rounded"
-								class="size-6"
-							/>
-						</button>
-					</div>
-					<SidebarItem label="Account">
-						<svelte:fragment slot="icon">
-							<Icon icon="material-symbols:account-circle" class="size-6" />
-						</svelte:fragment>
-					</SidebarItem>
-					<SidebarDropdownWrapper label="E-commerce">
-						<svelte:fragment slot="icon">
-							<CartSolid
-								class="w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-							/>
-						</svelte:fragment>
-						<DirectTree {directoryStructure} />
-					</SidebarDropdownWrapper>
-					<SidebarItem label="Setting">
-						<svelte:fragment slot="icon">
-							<EditOutline
-								class="w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-							/>
-						</svelte:fragment>
-					</SidebarItem>
-				</SidebarGroup>
-			</SidebarWrapper>
-		</Sidebar>
-	</div>
+<div class="main">
 
 	<div class="dragbar">
 		<div class="pl-4 flex gap-4">
-			{#if !isSidebarVisible}
-				<button class="h-full">
-					<Icon icon="ic:sharp-menu" class="size-6" />
-				</button>
-				<button
-					on:click={() => {
-						isSidebarVisible = !isSidebarVisible;
-					}}
-					class="h-full"
-				>
-					<Icon icon="material-symbols:arrow-forward-ios-rounded" class="size-6" />
-				</button>
-			{/if}
 		</div>
 		<div class="flex justify-end items-center pr-4 gap-4">
 			<button on:click={handleMinimizeWindow}>
@@ -153,11 +95,6 @@
 		grid-template-rows: 50px 1fr;
 		height: 100vh;
 		transition: grid-template-columns 0.3s ease-out;
-	}
-	.sidebar {
-		grid-row: 1 / 3;
-		overflow: hidden;
-		transition: transform 0.3s ease-out;
 	}
 	.dragbar {
 		-webkit-app-region: drag;
