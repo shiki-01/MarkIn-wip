@@ -22,6 +22,7 @@ const projectDataPath = path.join(userDataPath, 'ProjectData');
 if (!fs.existsSync(projectDataPath)) {
     fs.mkdirSync(projectDataPath);
 }
+console.log('created in ' + projectDataPath);
 
 const serveURL = serve({ directory: '.' });
 const port = process.env.PORT || 5173;

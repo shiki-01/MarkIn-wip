@@ -2,6 +2,7 @@
 	import '../app.css';
 	import { onMount } from 'svelte';
 	import * as Resizable from '$lib/components/ui/resizable';
+	import { Button } from '$lib/components/ui/button';
 	let ready: boolean = false;
 	let data: any;
 	let directoryStructure: any;
@@ -43,8 +44,8 @@
 	import DirectTree from '$lib/DirectTree.svelte';
 	import { cn } from '$lib/utils';
 
-	export let navCollapsedSize: number;
-	export let defaultCollapsed = false;
+	let navCollapsedSize: number = 3;
+	let defaultCollapsed = false;
 	let isCollapsed = defaultCollapsed;
 
 	const handleCloseWindow = () => {
@@ -102,18 +103,21 @@
 		>
 			<div
 				class={cn(
-					'flex h-[52px] items-center justify-center',
+					'flex h-[52px]',
 					isCollapsed ? 'h-[52px]' : 'px-2',
 				)}
 			>
-				<div data-collapsed={isCollapsed} class="group flex flex-col gap-4 py-2 data-[collapsed=true]:py-2">
-					<div class="grid gap-1 px-2 group-[[data-collapsed=true]]:justify-center group-[[data-collapsed=true]]:px-2">
+				<div
+					data-collapsed={isCollapsed}
+					class="group flex flex-col gap-4 py-2 data-[collapsed=true]:py-2"
+				>
+					<div
+						class="grid gap-1 px-2 group-[[data-collapsed=true]]:justify-center group-[[data-collapsed=true]]:px-2"
+					>
 						{#if isCollapsed}
 							<Icon icon="carbon:menu" class="size-6" />
 						{:else}
-							<Icon icon="carbon:menu" class="size-6" />
-							<Icon icon="carbon:menu" class="size-6" />
-							<Icon icon="carbon:menu" class="size-6" />
+							<DirectTree {directoryStructure} />
 						{/if}
 					</div>
 				</div>
