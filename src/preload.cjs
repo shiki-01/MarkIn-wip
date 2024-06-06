@@ -18,6 +18,9 @@ contextBridge.exposeInMainWorld('electron', {
 	file: {
 		getAll: async () => {
 			return await ipcRenderer.invoke('file-get-all');
-		}
+		},
+		read: async (path) => {
+			return await ipcRenderer.invoke('file-read', path);
+		},
 	}
 });

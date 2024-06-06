@@ -1,23 +1,18 @@
 <script>
-	export let directoryStructure;
-	export let level = 0;
-	import DirectTree from './DirectTree.svelte';
-	import { SidebarDropdownItem, SidebarDropdownWrapper } from 'flowbite-svelte';
-	import { Route, Router, Link } from 'svelte-routing';
+    export let directoryStructure;
+    export let level = 0;
+    import DirectTree from './DirectTree.svelte';
+    import { Button } from '$lib/components/ui/button';
 </script>
 
-<Router>
-    {#if directoryStructure}
-        {#each Object.entries(directoryStructure) as [name, value]}
-            {#if typeof value === 'object' && !value.path}
-                <SidebarDropdownWrapper label={name} style="padding-left: {level * 20}px;">
-                    <DirectTree directoryStructure={value} level={level + 1} />
-                </SidebarDropdownWrapper>
-            {:else}
-                <Link to={`/details/${name.split('/').pop()}`}>
-                    <SidebarDropdownItem label={name.split('/').pop()} />
-                </Link>
-            {/if}
-        {/each}
-    {/if}
-</Router>
+{#if directoryStructure}
+    {#each Object.entries(directoryStructure) as [name, value]}
+        {#if typeof value === 'object' && !value.path}
+            <DirectTree directoryStructure={value} {level} />
+        {:else}
+            <Button href='/details/{value.path.slice(value.path.indexOf("ProjectData") + "ProjectData".length).replace(/\\/g, '*')}' class="text-left">
+                {name}
+            </Button>
+        {/if}
+    {/each}
+{/if}

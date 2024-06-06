@@ -167,3 +167,13 @@ ipcMain.handle('file-get-all', async (event, arg) => {
     // Promiseが解決された値を返す
     return files.map(file => ({ name: file.name, path: file.path }));
 });
+
+ipcMain.handle('file-read', async (event, arg) => {
+	const userDataPath = app.getPath('userData');
+
+	const projectDataPath = path.join(userDataPath, 'ProjectData');
+
+	const file = fs.readFileSync(path.join(projectDataPath, arg), 'utf-8');
+
+	return file;
+});

@@ -36,7 +36,6 @@
 	onMount(async () => {
 		data = await window.electron.file.getAll();
 		directoryStructure = convertToDirectoryStructure(data);
-		console.log(directoryStructure);
 		ready = true;
 	});
 
@@ -101,12 +100,7 @@
 			{onCollapse}
 			{onExpand}
 		>
-			<div
-				class={cn(
-					'flex h-[52px]',
-					isCollapsed ? 'h-[52px]' : 'px-2',
-				)}
-			>
+			<div class={cn('flex h-[52px]', isCollapsed ? 'h-[52px]' : 'px-2')}>
 				<div
 					data-collapsed={isCollapsed}
 					class="group flex flex-col gap-4 py-2 data-[collapsed=true]:py-2"
@@ -117,14 +111,16 @@
 						{#if isCollapsed}
 							<Icon icon="carbon:menu" class="size-6" />
 						{:else}
+							<Button href="/"></Button>
+							<Button href="/details/test"></Button>
 							<DirectTree {directoryStructure} />
 						{/if}
 					</div>
 				</div>
 			</div>
 		</Resizable.Pane>
-		<Resizable.Handle withHandle />
-		<Resizable.Pane defaultSize={75}>
+		<Resizable.Handle />
+		<Resizable.Pane defaultSize={80}>
 			{#if ready}
 				<div class="w-full h-full">
 					<slot />
