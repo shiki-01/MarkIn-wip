@@ -7,7 +7,7 @@
 	import TurndownService from 'turndown';
 	import 'quill/dist/quill.snow.css';
 	import * as Resizable from '$lib/components/ui/resizable';
-	import { Textarea } from "$lib/components/ui/textarea";
+	import { Textarea } from '$lib/components/ui/textarea';
 
 	let direName: string;
 	let fileContent: string;
@@ -75,29 +75,39 @@
 	}
 </script>
 
-<h1>{direName}</h1>
 {#if direName}
-	<div class="editor w-full h-full">
-		<Resizable.PaneGroup direction="horizontal" >
-			<Resizable.Pane defaultSize={50} minSize={15} class="p-4">
-				<Textarea
-					bind:value={editor}
-					on:input={() => {
-						switchToMarkdown();
-					}}
-					class="w-full h-full"
-				/>
-			</Resizable.Pane>
-			<Resizable.Handle />
-			<Resizable.Pane defaultSize={50} minSize={15} class="p-4">
-				<div id="quill-editor" on:click={switchToRichText}></div>
-			</Resizable.Pane>
-		</Resizable.PaneGroup>
+	<div class="flex flex-col w-full h-full">
+		<div class="editor w-full h-full">
+			<Resizable.PaneGroup direction="horizontal" style="overflow: visible">
+				<Resizable.Pane defaultSize={50} minSize={15} class="flex flex-col w-full h-full p-4">
+					<h1 class="h-[42.84px] flex align-middle">{direName}</h1>
+					<Textarea
+						bind:value={editor}
+						on:input={() => {
+							switchToMarkdown();
+						}}
+						class="w-full h-full resize-none"
+					/>
+				</Resizable.Pane>
+				<Resizable.Handle />
+				<Resizable.Pane
+					defaultSize={50}
+					minSize={15}
+					class="w-full h-full p-4"
+					style="overflow: visible"
+				>
+					<div id="quill-editor" class="w-full h-full" on:click={switchToRichText}></div>
+				</Resizable.Pane>
+			</Resizable.PaneGroup>
+		</div>
 	</div>
 {/if}
 
 <style>
-	.ql-tooltip {
+	:global(.ql-tooltip) {
 		z-index: 9999;
+	}
+	#quill-editor {
+		height: calc(100% - 42.84px);
 	}
 </style>

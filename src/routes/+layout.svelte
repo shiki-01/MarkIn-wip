@@ -122,7 +122,7 @@
 		<Resizable.Handle />
 		<Resizable.Pane defaultSize={80}>
 			{#if ready}
-				<div class="w-full h-full">
+				<div class="w-full h-full p-4">
 					<slot />
 				</div>
 			{/if}
