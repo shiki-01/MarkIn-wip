@@ -6,6 +6,8 @@
 	import Quill from 'quill';
 	import TurndownService from 'turndown';
 	import 'quill/dist/quill.snow.css';
+	import * as Resizable from '$lib/components/ui/resizable';
+	import { Textarea } from "$lib/components/ui/textarea";
 
 	let direName: string;
 	let fileContent: string;
@@ -69,22 +71,33 @@
 	});
 
 	$: if (quill && isMarkdownEditing) {
-        quill.root.innerHTML = markdownToHtml(editor);
-    }
+		quill.root.innerHTML = markdownToHtml(editor);
+	}
 </script>
 
 <h1>{direName}</h1>
 {#if direName}
-	<div class="editor">
-		<!-- マークダウンエディタ -->
-		<textarea
-			bind:value={editor}
-			on:input={() => {
-				switchToMarkdown();
-			}}
-		></textarea>
-
-		<!-- リッチテキストエディタ -->
-		<div id="quill-editor" on:click={switchToRichText}></div>
+	<div class="editor w-full h-full">
+		<Resizable.PaneGroup direction="horizontal" >
+			<Resizable.Pane defaultSize={50} minSize={15} class="p-4">
+				<Textarea
+					bind:value={editor}
+					on:input={() => {
+						switchToMarkdown();
+					}}
+					class="w-full h-full"
+				/>
+			</Resizable.Pane>
+			<Resizable.Handle />
+			<Resizable.Pane defaultSize={50} minSize={15} class="p-4">
+				<div id="quill-editor" on:click={switchToRichText}></div>
+			</Resizable.Pane>
+		</Resizable.PaneGroup>
 	</div>
 {/if}
+
+<style>
+	.ql-tooltip {
+		z-index: 9999;
+	}
+</style>
