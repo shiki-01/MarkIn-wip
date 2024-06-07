@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
 	import { marked } from 'marked';
+	import DOMPurify from 'dompurify';
 	import Quill from 'quill';
-	import 'quill/dist/quill.snow.css';
 	import TurndownService from 'turndown';
-
-	import { afterUpdate, onMount } from 'svelte';
+	import 'quill/dist/quill.snow.css';
 
 	let direName: string;
 	let fileContent: string;
@@ -18,40 +18,73 @@
 	$: if (direName) {
 		window.electron.file.read(direName.replace(/\*/g, '\\')).then((content: string) => {
 			fileContent = content;
-			text = fileContent;
+			editor = fileContent;
 		});
 	}
 
-	let text = '# Hello, Svelte!';
-	let editor: HTMLElement;
-	let quill: Quill;
+	let editor: string = '';
+	let isMarkdownEditing = true;
+	let quill: { root: { innerHTML: string }; on: (arg0: string, arg1: () => void) => void };
 
 	const turndownService = new TurndownService();
 
-	onMount(async () => {
-        quill = new Quill(editor, {
-            theme: 'snow',
-        });
-        quill.on('text-change', toMarkdown);
-    });
-
-	let markdown = '';
-
-	async function toMarkdown() {
-		markdown = turndownService.turndown(quill.root.innerHTML);
-		text = markdown;
+	// マークダウンをHTMLに変換
+	function markdownToHtml(markdown: string) {
+		return DOMPurify.sanitize(marked(markdown));
 	}
 
-	async function toHtml() {
-		markdown = text;
-		editor.innerHTML = await marked(text);
+	// HTMLをマークダウンに変換
+	function htmlToMarkdown(html: any) {
+		return turndownService.turndown(html);
 	}
+
+	// 編集モードの切り替え
+	function switchToMarkdown() {
+		if (!isMarkdownEditing) {
+			isMarkdownEditing = true;
+			quill.root.innerHTML = markdownToHtml(editor);
+		}
+	}
+
+	function switchToRichText() {
+		if (isMarkdownEditing) {
+			isMarkdownEditing = false;
+			editor = htmlToMarkdown(quill.root.innerHTML);
+		}
+	}
+
+	onMount(() => {
+		quill = new Quill('#quill-editor', {
+			theme: 'snow',
+		});
+
+		quill.on('text-change', () => {
+			if (!isMarkdownEditing) {
+				editor = htmlToMarkdown(quill.root.innerHTML);
+			}
+		});
+
+		// 初期設定としてリッチテキストエディタを初期化
+		quill.root.innerHTML = markdownToHtml(editor);
+	});
+
+	$: if (quill && isMarkdownEditing) {
+        quill.root.innerHTML = markdownToHtml(editor);
+    }
 </script>
 
 <h1>{direName}</h1>
 {#if direName}
 	<div class="editor">
-		<textarea bind:value={text} on:change={toHtml} />
-		<div bind:this={editor} />
+		<!-- マークダウンエディタ -->
+		<textarea
+			bind:value={editor}
+			on:input={() => {
+				switchToMarkdown();
+			}}
+		></textarea>
+
+		<!-- リッチテキストエディタ -->
+		<div id="quill-editor" on:click={switchToRichText}></div>
 	</div>
 {/if}
