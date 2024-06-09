@@ -31,9 +31,53 @@
 
 	const turndownService = new TurndownService();
 
+	turndownService.addRule('headings', {
+		filter: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+		replacement: function (content, node) {
+			const level = parseInt(node.nodeName.charAt(1), 10);
+			const hashes = '#'.repeat(level);
+			return `\n\n${hashes} ${content}\n\n`;
+		},
+	});
+
+	turndownService.addRule('unorderedList', {
+		filter: ['ul'],
+		replacement: function (content) {
+			return `\n\n${content.replace(/^\s*\n/gm, '')}\n\n`;
+		},
+	});
+
+	turndownService.addRule('orderedList', {
+		filter: ['ol'],
+		replacement: function (content) {
+			return `\n\n${content.replace(/^\s*\n/gm, '')}\n\n`;
+		},
+	});
+
+	turndownService.addRule('listItem', {
+		filter: ['li'],
+		replacement: function (content, node) {
+			let prefix = '- ';
+			if (node.parentNode) {
+				prefix = node.parentNode.nodeName === 'OL' ? '1. ' : '- ';
+			}
+			return `${prefix}${content}\n`;
+		},
+	});
+
 	// マークダウンをHTMLに変換
 	function markdownToHtml(markdown: string) {
-		return DOMPurify.sanitize(marked(markdown));
+		const markedResult = marked(markdown);
+		if (typeof markedResult === 'string') {
+			return DOMPurify.sanitize(markedResult);
+		}
+	}
+
+	function initializeQuillContent() {
+		const initialHtml = markdownToHtml(editor);
+		if (quill && initialHtml) {
+			quill.root.innerHTML = initialHtml;
+		}
 	}
 
 	// HTMLをマークダウンに変換
@@ -42,10 +86,14 @@
 	}
 
 	// 編集モードの切り替え
-	function switchToMarkdown() {
+	async function switchToMarkdown() {
 		if (!isMarkdownEditing) {
 			isMarkdownEditing = true;
-			quill.root.innerHTML = markdownToHtml(editor);
+			const html = await markdownToHtml(editor); // awaitを使用してPromiseの解決を待つ
+			if (html) {
+				// markdownToHtmlがundefinedを返す可能性があるため、チェックする
+				quill.root.innerHTML = html;
+			}
 		}
 	}
 
@@ -62,7 +110,6 @@
 	onMount(() => {
 		quill = new Quill('#quill-editor', {
 			theme: 'snow',
-
 			modules: {
 				toolbar: '#toolbar',
 			},
@@ -74,57 +121,12 @@
 			}
 		});
 
-		// 初期設定としてリッチテキストエディタを初期化
-		quill.root.innerHTML = markdownToHtml(editor);
-
-		const syncScroll = (source: Element, target: Element) => {
-			let isSyncingSource = false;
-			let isSyncingTarget = false;
-
-			const adjustScroll = (
-				src: { scrollTop: number; scrollHeight: number; clientHeight: number },
-				tgt: { scrollTop: number; scrollHeight: number; clientHeight: number },
-				isSource: boolean,
-			) => {
-				if (isSource ? isSyncingTarget : isSyncingSource) return;
-				if (isSource) {
-					isSyncingSource = true;
-				} else {
-					isSyncingTarget = true;
-				}
-				// スクロール比率を計算
-				const ratio = src.scrollTop / (src.scrollHeight - src.clientHeight);
-				// 目標要素のスクロール位置を計算し、最大スクロール範囲を超えないように調整
-				const targetScrollTop = Math.min(
-					ratio * (tgt.scrollHeight - tgt.clientHeight),
-					tgt.scrollHeight - tgt.clientHeight,
-				);
-
-				// ソース要素が一番下にスクロールされている場合のみ、ターゲットのスクロール位置を調整
-				if (src.scrollTop >= src.scrollHeight - src.clientHeight - 1) {
-					tgt.scrollTop = targetScrollTop;
-				}
-
-				if (isSource) {
-					isSyncingSource = false;
-				} else {
-					isSyncingTarget = false;
-				}
-			};
-
-			source.addEventListener('scroll', () => adjustScroll(source, target, true));
-			target.addEventListener('scroll', () => adjustScroll(target, source, false));
-		};
-
-		const quillEditorContainer = document.querySelector('#quill-editor .ql-editor');
-		if (quillEditorContainer && textarea) {
-			syncScroll(textarea, quillEditorContainer);
-			syncScroll(quillEditorContainer, textarea);
-		}
+		// 非同期関数を呼び出し
+		initializeQuillContent();
 	});
 
 	$: if (quill && isMarkdownEditing) {
-		quill.root.innerHTML = markdownToHtml(editor);
+		initializeQuillContent();
 	}
 </script>
 
@@ -155,15 +157,22 @@
 					style="overflow: visible"
 				>
 					<div id="toolbar" class="h-[45px] flex align-middle">
-						<select class="ql-size">
-							<option value="small"></option>
+						<select class="ql-header">
+							<option value="1"></option>
+							<option value="2"></option>
+							<option value="3"></option>
+							<option value="4"></option>
+							<option value="5"></option>
+							<option value="6"></option>
 							<option selected></option>
-							<option value="large"></option>
-							<option value="huge"></option>
 						</select>
 						<button class="ql-bold"></button>
 						<button class="ql-script" value="sub"></button>
 						<button class="ql-script" value="super"></button>
+						<button class="ql-link"></button>
+						<button class="ql-image"></button>
+						<button class="ql-code-block"></button>
+						<button class="ql-clean"></button>
 					</div>
 					<!-- svelte-ignore a11y-click-events-have-key-events -->
 					<div
