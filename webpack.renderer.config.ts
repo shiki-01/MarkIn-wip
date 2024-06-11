@@ -16,9 +16,14 @@ export const rendererConfig: Configuration = {
     rules: [
       // ...
       {
-        test: /\.tsx?$/,
-        use: 'ts-loader',
-        exclude: /node_modules/,
+        test: /\.svelte?$/,
+        use: {
+          loader: 'svelte-loader',
+          options: {
+            emitCss: true,
+            hotReload: true
+          }
+        }
       },
       {
         test: /\.css$/,
@@ -32,7 +37,7 @@ export const rendererConfig: Configuration = {
   },
   plugins,
   resolve: {
-    extensions: [".js", ".ts", ".jsx", ".tsx", ".css"],
+    extensions: [".js", ".ts", ".cjs", ".svelte", ".css"],
     modules: ["./src", "./node_modules"],
     fallback: {
       "fs": false,

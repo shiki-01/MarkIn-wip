@@ -1,8 +1,8 @@
 {
-	"name": "sveltekit-electron",
-	"version": "0.0.1",
-	"private": true,
-	"description": "Minimal Sveltekit + Electron starter template.",
+	"name": "markin",
+	"productName": "MarkIn",
+	"version": "1.0.5",
+	"description": "My Electron application description",
 	"main": "src/electron.cjs",
 	"type": "module",
 	"author": "Braden Wiggins",
@@ -14,6 +14,7 @@
 		"build": "cross-env NODE_ENV=production npm run build:svelte && npm run build:electron",
 		"build:svelte": "vite build",
 		"build:electron": "electron-builder -mwl --config build.config.json",
+		"start": "electron-forge start",
 		"package": "electron-forge package",
 		"make": "electron-forge make",
 		"publish": "electron-forge publish"

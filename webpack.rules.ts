@@ -19,12 +19,13 @@ export const rules: Required<ModuleOptions>['rules'] = [
     },
   },
   {
-    test: /\.tsx?$/,
-    exclude: /(node_modules|\.webpack)/,
+    test: /\.svelte?$/,
+    exclude: /node_modules/,
     use: {
-      loader: 'ts-loader',
+      loader: 'svelte-loader',
       options: {
-        transpileOnly: true,
+        emitCss: true,
+        hotReload: true,
       },
     },
   },
