@@ -65,6 +65,19 @@
 		},
 	});
 
+	turndownService.addRule('codeBlock', {
+    filter: function(node) {
+        return (
+            node.nodeName === 'DIV' &&
+            node.classList.contains('ql-code-block-container')
+        );
+    },
+    replacement: function(content) {
+        // コードブロックの内容を取得し、前後にバックティック3つを追加
+        return `\`\`\`\n${content.trim()}\n\`\`\`\n`;
+    }
+});
+
 	// マークダウンをHTMLに変換
 	function markdownToHtml(markdown: string) {
 		const markedResult = marked(markdown);
@@ -82,26 +95,23 @@
 
 	// HTMLをマークダウンに変換
 	function htmlToMarkdown(html: any) {
+
 		return turndownService.turndown(html);
 	}
 
 	// 編集モードの切り替え
-	async function switchToMarkdown() {
+	function switchToMarkdown() {
 		if (!isMarkdownEditing) {
 			isMarkdownEditing = true;
-			const html = await markdownToHtml(editor); // awaitを使用してPromiseの解決を待つ
-			if (html) {
-				// markdownToHtmlがundefinedを返す可能性があるため、チェックする
-				quill.root.innerHTML = html;
-			}
 		}
+		initializeQuillContent();
 	}
 
 	function switchToRichText() {
 		if (isMarkdownEditing) {
 			isMarkdownEditing = false;
-			editor = htmlToMarkdown(quill.root.innerHTML);
 		}
+		editor = htmlToMarkdown(quill.root.innerHTML);
 	}
 
 	let textarea: HTMLTextAreaElement;
@@ -161,9 +171,6 @@
 							<option value="1"></option>
 							<option value="2"></option>
 							<option value="3"></option>
-							<option value="4"></option>
-							<option value="5"></option>
-							<option value="6"></option>
 							<option selected></option>
 						</select>
 						<button class="ql-bold"></button>
@@ -175,6 +182,7 @@
 						<button class="ql-clean"></button>
 					</div>
 					<!-- svelte-ignore a11y-click-events-have-key-events -->
+					<!-- svelte-ignore a11y-no-static-element-interactions -->
 					<div
 						id="quill-editor"
 						bind:this={qeditor}
