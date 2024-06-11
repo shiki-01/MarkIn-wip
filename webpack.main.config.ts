@@ -1,7 +1,5 @@
 import type { Configuration } from "webpack";
 
-import { rules } from "./webpack.rules";
-
 export const mainConfig: Configuration = {
   /**
    * This is the main entry point for your application, it's the first file
